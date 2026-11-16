@@ -4,6 +4,7 @@ import { refineCorners, refinePads } from './refine.js';
 import { sampleDisc } from './sample.js';
 import { matchScale, fitQuality, DEFAULT_TOLERANCE } from './match.js';
 import { deltaE2000, linearRgbToLab, decodeChannel } from './color.js';
+import { formatReading } from './format.js';
 
 export const LIMITS = {
   swatchSpread: 7, // mean ΔE*ab inside a chart swatch disc; higher = disc overlaps border/text
@@ -126,7 +127,16 @@ export function analyze(img, kit, { corners, pads, water = 'fresh', space = 'srg
     entry.match = matchScale(pad.sample.lab, swatches.map((s) => s.sample.lab), entry.values, { tolerance });
     entry.quality = fitQuality(entry.match.fitDeltaE);
 
-    if (entry.quality === 'poor') {
+    if (entry.match.outOfRange) {
+      const vals = entry.values;
+      const end = entry.match.outOfRange === 'above' ? `highest value (${vals[vals.length - 1]})` : `lowest value (${vals[0]})`;
+      warnings.push({
+        level: 'warn',
+        code: 'out-of-chart',
+        paramId: param.id,
+        message: `${param.name}: the pad's color goes past the chart's ${end}. The estimate ${formatReading(entry).split(' —')[0]} is extrapolated from the chart's color trend; confirm with a liquid test if it matters.`,
+      });
+    } else if (entry.quality === 'poor') {
       warnings.push({
         level: 'warn',
         code: 'poor-fit',

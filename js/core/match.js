@@ -23,14 +23,27 @@ export function valueAt(values, pos) {
 }
 
 /**
+ * Like valueAt, but beyond either end of the chart the value continues along the first/last chart step.
+ * Scales that start at 0 or above (concentrations) are never extrapolated below 0.
+ */
+export function valueAtExtrapolated(values, pos) {
+  const n = values.length;
+  let v;
+  if (pos < 0) v = values[0] + (values[1] - values[0]) * pos;
+  else if (pos > n - 1) v = values[n - 1] + (values[n - 1] - values[n - 2]) * (pos - (n - 1));
+  else return valueAt(values, pos);
+  return values[0] >= 0 ? Math.max(0, v) : v;
+}
+
+/**
  * @param {number[]} padLab
  * @param {number[][]} swatchLabs  Lab of each chart swatch, in scale order
  * @param {number[]} values        chart value of each swatch
  * @param {object} [opts]
  * @param {number} [opts.tolerance] ΔE00 above the best match still considered indistinguishable (range)
- * @param {number} [opts.extrapolate] how far (in swatch steps) to extend the path beyond both ends
+ * @param {number} [opts.extrapolate] how far (in chart steps) the color path is extended beyond both ends
  */
-export function matchScale(padLab, swatchLabs, values, { tolerance = DEFAULT_TOLERANCE, extrapolate = 0.5, steps = 50 } = {}) {
+export function matchScale(padLab, swatchLabs, values, { tolerance = DEFAULT_TOLERANCE, extrapolate = 1, steps = 50 } = {}) {
   const n = swatchLabs.length;
   if (n < 2 || values.length !== n) throw new Error('A scale needs at least 2 swatches with matching values');
 
@@ -73,17 +86,26 @@ export function matchScale(padLab, swatchLabs, values, { tolerance = DEFAULT_TOL
     if (d < swatchDeltaE[nearest]) nearest = i;
   });
 
+  // Beyond the chart the reading is extrapolated. A scale starting at 0 cannot read "below 0": that is just 0.
   let outOfRange = null;
-  if (bestPos < -0.05) outOfRange = 'below';
+  if (bestPos < -0.05 && values[0] !== 0) outOfRange = 'below';
   else if (bestPos > n - 1 + 0.05) outOfRange = 'above';
+  // Best match at the very end of the extended path: the true value may lie even further out.
+  let atLimit = null;
+  if (outOfRange === 'above' && bestPos >= posMax - 1 / steps) atLimit = 'above';
+  else if (outOfRange === 'below' && bestPos <= posMin + 1 / steps) atLimit = 'below';
 
+  const valueOf = (p) => valueAtExtrapolated(values, p);
   return {
     position: clampPos(bestPos),
-    value: valueAt(values, bestPos),
+    rawPosition: bestPos,
+    value: valueOf(bestPos),
     outOfRange,
+    atLimit,
     fitDeltaE,
-    range: [valueAt(values, clampPos(samples[lo].pos)), valueAt(values, clampPos(samples[hi].pos))],
-    positionRange: [clampPos(samples[lo].pos), clampPos(samples[hi].pos)],
+    range: [valueOf(samples[lo].pos), valueOf(samples[hi].pos)],
+    // In chart steps; may extend beyond [0, n-1] when the reading is extrapolated.
+    positionRange: [samples[lo].pos, samples[hi].pos],
     nearest: { index: nearest, value: values[nearest], deltaE: swatchDeltaE[nearest] },
     swatchDeltaE,
   };

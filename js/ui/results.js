@@ -1,6 +1,6 @@
 // Rendering of readings, warnings and the multi-photo summary.
 import { cssColor } from '../core/color.js';
-import { formatReading } from '../core/format.js';
+import { formatReading, readingParts } from '../core/format.js';
 import { esc } from './html.js';
 
 export function formatElapsed(sec) {
@@ -50,25 +50,30 @@ function paramCard(p, space, elapsed) {
       <div class="param-name"><b>${esc(p.name)}</b><span>${esc(p.symbol)}</span></div><div class="param-value">—</div></div></div>`;
   }
   const m = p.match;
-  const [lo, hi] = m.positionRange;
+  // Positions may lie beyond the chart (extrapolated); keep the marker and range box on the bar's outer edges.
+  const edge = (pos) => Math.min(n - 0.5, Math.max(-0.5, pos));
+  const [lo, hi] = m.positionRange.map(edge);
   const pad = (100 / n) * 0.12;
-  const reading = formatReading(p);
-  const main = reading.replace(/ \(.*$/, '');
-  const extra = reading.slice(main.length).trim();
+  const r = readingParts(p);
+  const extra = [r.range && `(${r.range})`, r.alt].filter(Boolean).join(' · ');
   const status = timingStatus(p.readAfterSec, elapsed);
+  const note = r.note
+    ? `<div class="note">${m.outOfRange === 'above' ? '⬆' : '⬇'} ${esc(r.note[0].toUpperCase() + r.note.slice(1))}: the pad's color goes past the chart, so this estimate follows the chart's color trend and is less certain.</div>`
+    : '';
   return `<div class="param" data-param="${p.id}">
     <div class="param-head">
       <span class="chip" style="background:${padColor}" title="Pad color"></span>
       <div class="param-name"><b>${esc(p.name)}</b><span>${esc(p.symbol)}</span></div>
-      <div class="param-value">${esc(main)}<small>${esc(extra)}</small></div>
+      <div class="param-value">${esc(r.main)}<small>${esc(extra)}</small></div>
     </div>
     <div class="scale">
       <div class="swatches">${sw}</div>
       <div class="range" style="left:${pct(lo) - pad}%;width:${pct(hi) - pct(lo) + 2 * pad}%"></div>
-      <div class="marker" style="left:${pct(m.position)}%">▲</div>
+      <div class="marker" style="left:${pct(edge(m.rawPosition))}%">▲</div>
     </div>
+    ${note}
     <div class="meta">
-      <span>Match <b class="q-${p.quality}">${p.quality}</b> (ΔE ${m.fitDeltaE.toFixed(1)})</span>
+      <span>Color match <b class="q-${p.quality}">${p.quality}</b> (ΔE ${m.fitDeltaE.toFixed(1)})</span>
       <span>Nearest chart color: ${m.nearest.value} (ΔE ${m.nearest.deltaE.toFixed(1)})</span>
       ${timingTag(status, elapsed)}
     </div>

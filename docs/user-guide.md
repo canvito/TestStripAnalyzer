@@ -57,13 +57,19 @@ circles.
 
 Each parameter shows:
 
-- **Big number.** The interpolated reading, e.g. `7.3`. KH/GH also show °dKH/°dGH.
+- **Big number.** The estimated value, interpolated between chart colors, e.g. `7.3`. KH/GH also show °dKH/°dGH.
+  There is always a number:
+  - `≈ 9.2` with an *above chart / below chart, extrapolated* note means the pad's color goes past the chart's last
+    color. The value continues the chart's color trend (up to one chart step beyond) and is less certain.
+  - `> value` / `< value` means it is even further out than that.
+  - Concentrations never read below 0.
 - **Range in brackets.** All values whose chart color is practically indistinguishable from your pad (within 2 ΔE₀₀).
   A wide range means the chart itself can't separate those steps, not that the app failed.
 - **Color bar.** The chart swatches *as captured in your photo*. The outlined box is the range and ▲ is the reading.
-  The square chip next to the name is your pad's color.
-- **Match** quality: *good* (ΔE ≤ 3), *fair* (≤ 6), *poor* (> 6). Poor means the pad doesn't look like any chart
-  color. Check glare, shadows, marker position, and timing.
+  For extrapolated values ▲ sits at the end of the bar. The square chip next to the name is your pad's color.
+- **Color match**: *good* (ΔE ≤ 3), *fair* (≤ 6), *poor* (> 6). This tells you how much to trust the number, not the
+  number itself. Poor means the pad doesn't look like any chart color: check glare, shadows, marker position, and
+  timing.
 - **Timing tag** (when the timer was used): ✓ on time, *early*, or *late*.
 
 ### Warnings and what to do
@@ -75,12 +81,15 @@ Each parameter shows:
 | *glare / over-exposure* | Tilt the card slightly or move away from direct light. No flash. |
 | *Strip and chart look unevenly lit* | Put the strip on the card and remove shadows. |
 | *chart … does not look like the … card* | The corners aren't on the color table's outer corners, or the wrong kit is selected. |
+| *pad's color goes past the chart's highest/lowest value* | The estimate is extrapolated. Re-test for very high/low values and confirm with a liquid test if it matters. |
 | *pad color is far from every chart color* | Usually timing (too late), glare, or an expired/contaminated strip. |
 
 ## 6 · Save & track
 
 - **💾 Save to history** stores the (combined) reading in this browser on this device.
-- **⬇ Export CSV** downloads every saved reading (value, low, high, quality per parameter) for a spreadsheet.
+- **⬇ Export CSV** downloads every saved reading for a spreadsheet. Per parameter you get value, low, high, quality,
+  and `_chart` (`above`/`below` when the value was extrapolated beyond the chart). In the history table, ≈ marks an
+  extrapolated value.
 - **New test** clears the photos and timer for the next strip.
 
 History lives in the browser's local storage. Clearing site data or using a different browser/device starts empty.

@@ -10,7 +10,7 @@ import { loadJpeg, saveJpeg, drawCircle, drawCross } from './lib/image-node.mjs'
 import { parseArgs } from './lib/args.mjs';
 import { analyze, interpolatePads } from '../js/core/analyze.js';
 import { getKit } from '../js/kits/index.js';
-import { formatReading } from '../js/core/format.js';
+import { readingParts } from '../js/core/format.js';
 
 function main() {
   const opts = parseArgs(process.argv.slice(2), { kit: 'api-5in1', water: 'fresh', space: 'display-p3' });
@@ -33,9 +33,10 @@ function main() {
         continue;
       }
       const m = p.match;
-      console.log(
-        `  ${p.symbol.padEnd(5)} ${formatReading(p).padEnd(28)} nearest ${String(m.nearest.value).padStart(5)} (ΔE ${m.nearest.deltaE.toFixed(1)})  fit ΔE ${m.fitDeltaE.toFixed(1)} [${p.quality}]`,
-      );
+      const r = readingParts(p);
+      const value = `${r.main}${r.range ? ` (${r.range})` : ''}${r.alt ? ` · ${r.alt}` : ''}`;
+      console.log(`  ${p.symbol.padEnd(5)} ${value.padEnd(34)} color match ${p.quality} (ΔE ${m.fitDeltaE.toFixed(1)}), nearest chart ${m.nearest.value} (ΔE ${m.nearest.deltaE.toFixed(1)})`);
+      if (r.note) console.log(`        ↳ ${r.note}`);
     }
     for (const w of result.warnings) console.log(`  ! ${w.message}`);
   }

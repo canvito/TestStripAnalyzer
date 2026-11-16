@@ -48,7 +48,10 @@ npm run serve        # http://localhost:8080 (also prints a LAN URL you can open
    saturated reds/purples aren't clipped.
 4. **Matching.** Chart swatches of a parameter form a piecewise-linear path in CIELAB. The pad's reading is the closest
    point on that path by ΔE₀₀, and the value is interpolated between the two neighbouring swatches. The *range* covers
-   positions within 2 ΔE₀₀ of the best fit. *Match quality* is the distance to the path: good ≤ 3, fair ≤ 6, poor > 6.
+   positions within 2 ΔE₀₀ of the best fit. *Color match* is the distance to the path: good ≤ 3, fair ≤ 6, poor > 6.
+   If the pad's color goes **past the first or last swatch**, the path is extended up to one chart step along the
+   chart's color trend. The app still gives an estimate (e.g. `≈ 259 ppm`), clearly marked as *extrapolated*.
+   Concentration scales never go below 0.
 5. **Quality checks.** These cover non-uniform samples (marker on an edge or on text), glare/clipping, strip-vs-chart
    lighting mismatch, a chart that doesn't look like the expected card, and read timing.
 
@@ -56,8 +59,9 @@ npm run serve        # http://localhost:8080 (also prints a LAN URL you can open
 
 - The result can only be as good as the **printed chart**. The app removes human color-perception error, not the chart's
   own coarse steps (e.g. NO₂⁻ 0 vs 0.5 are nearly identical on the API card, so expect a range like 0–0.6).
-- Printed ink and a wet pad never match perfectly, so a *fair* match quality on some pads is normal. A *poor* match
-  together with a reading at the end of the scale (e.g. `≥ 240`) usually means the true value is beyond the chart.
+- Printed ink and a wet pad never match perfectly, so a *fair* color match on some pads is normal. Values beyond the
+  chart (e.g. `≈ 259 ppm — above chart (max 240 ppm), extrapolated`) are best-effort estimates. Confirm them with a
+  liquid test if they matter.
 - Validated on a real dipped API 5 in 1 strip photographed on its card: pad and swatch samples land correctly from
   sloppy taps, and the readings agree with careful visual inspection while adding ranges and match quality.
 - Reading **time** matters: API says read KH & GH immediately and pH/NO₂⁻/NO₃⁻ after 30 s. Use the timer and, for best

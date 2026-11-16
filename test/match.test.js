@@ -26,17 +26,36 @@ test('a pad between two swatches is interpolated', () => {
   assert.ok(m.range[0] > 20 && m.range[1] < 40, `range ${m.range} should be narrower than the neighbouring swatches`);
 });
 
-test('colors beyond the last swatch are flagged as above range and clamped', () => {
+test('colors beyond the last swatch get an extrapolated estimate, flagged as above the chart', () => {
   const m = matchScale(labAt(SW, 3.4), SW, VALUES);
   assert.equal(m.outOfRange, 'above');
-  assert.equal(m.value, 40);
-  assert.equal(formatReading({ match: m, values: VALUES, decimals: 0, unit: 'ppm' }).startsWith('≥ 40 ppm'), true);
+  assert.equal(m.atLimit, null);
+  // Last chart step is 20 -> 40, so 0.4 steps beyond 40 ≈ 48.
+  assert.ok(Math.abs(m.value - 48) < 0.5, `got ${m.value}`);
+  const text = formatReading({ match: m, values: VALUES, decimals: 0, unit: 'ppm' });
+  assert.match(text, /^≈ 48 ppm/);
+  assert.match(text, /above chart \(max 40 ppm\), extrapolated/);
 });
 
-test('below-zero readings on a scale starting at 0 display as 0', () => {
+test('colors far beyond the chart are reported as a bound', () => {
+  const m = matchScale(labAt(SW, 6), SW, VALUES);
+  assert.equal(m.atLimit, 'above');
+  assert.match(formatReading({ match: m, values: VALUES, decimals: 0, unit: 'ppm' }), /^> 60 ppm/);
+});
+
+test('below-zero readings on a scale starting at 0 are simply 0', () => {
   const m = matchScale(labAt(SW, -0.4), SW, VALUES);
-  assert.equal(m.outOfRange, 'below');
+  assert.equal(m.outOfRange, null);
+  assert.equal(m.value, 0);
   assert.ok(formatReading({ match: m, values: VALUES, decimals: 0, unit: 'ppm' }).startsWith('0 ppm'));
+});
+
+test('scales not starting at 0 extrapolate below the lowest swatch (e.g. pH under 6.0)', () => {
+  const PH = [6.0, 6.5, 7.0, 7.5];
+  const m = matchScale(labAt(SW, -0.4), SW, PH);
+  assert.equal(m.outOfRange, 'below');
+  assert.ok(Math.abs(m.value - 5.8) < 0.02, `got ${m.value}`);
+  assert.match(formatReading({ match: m, values: PH, decimals: 1, unit: '' }), /^≈ 5\.8/);
 });
 
 test('an off-path color yields a poor fit', () => {
@@ -47,5 +66,5 @@ test('an off-path color yields a poor fit', () => {
 test('alternate units are shown for in-range readings', () => {
   const m = matchScale(SW[3], SW, VALUES);
   const s = formatReading({ match: m, values: VALUES, decimals: 0, unit: 'ppm', altUnit: { unit: '°dKH', factor: 1 / 17.848 } });
-  assert.match(s, /≈ 2\.2 °dKH/);
+  assert.match(s, /· 2\.2 °dKH/);
 });

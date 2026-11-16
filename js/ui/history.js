@@ -55,6 +55,7 @@ export function makeEntry(kit, water, combined) {
       low: round(p.match.range[0], p.decimals + 1),
       high: round(p.match.range[1], p.decimals + 1),
       outOfRange: p.match.outOfRange,
+      atLimit: p.match.atLimit,
       quality: p.quality,
       timing: status,
       text: formatReading(p),
@@ -75,14 +76,15 @@ function csvCell(v) {
 
 export function toCsv(list, kits) {
   const ids = [...new Set(kits.flatMap((k) => k.params.map((p) => p.id)))];
-  const header = ['date', 'kit', 'water', ...ids.flatMap((id) => [`${id}`, `${id}_low`, `${id}_high`, `${id}_quality`])];
+  const header = ['date', 'kit', 'water', ...ids.flatMap((id) => [`${id}`, `${id}_low`, `${id}_high`, `${id}_quality`, `${id}_chart`])];
+  // `<id>_chart`: "above"/"below" when the value was extrapolated beyond the chart, empty when within it.
   const rows = list.map((e) => [
     e.date,
     e.kitId,
     e.water,
     ...ids.flatMap((id) => {
       const r = e.readings[id];
-      return isObject(r) ? [r.value, r.low, r.high, r.quality] : ['', '', '', ''];
+      return isObject(r) ? [r.value, r.low, r.high, r.quality, r.outOfRange ?? ''] : ['', '', '', '', ''];
     }),
   ]);
   return [header, ...rows].map((r) => r.map(csvCell).join(',')).join('\n');
@@ -103,7 +105,7 @@ export function renderHistory(el, list, kit, { onDelete }) {
           const r = e.readings[p.id];
           const v = Number(r?.value);
           if (!isObject(r) || !Number.isFinite(v)) return '<td>—</td>';
-          const prefix = r.outOfRange === 'above' ? '≥' : '';
+          const prefix = r.atLimit === 'above' ? '>' : r.atLimit === 'below' ? '<' : r.outOfRange ? '≈' : '';
           return `<td class="${r.quality === 'poor' ? 'poor' : ''}" title="${esc(r.text)}">${prefix}${v.toFixed(safeDecimals(r.decimals))}</td>`;
         })
         .join('');

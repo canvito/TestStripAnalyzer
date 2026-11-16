@@ -75,8 +75,9 @@
         <details class="explain">
           <summary>How to read these results</summary>
           <ul>
-            <li><b>Value</b> is interpolated between the two closest chart colors; the range in brackets covers every value whose chart color is practically indistinguishable (within 2 ΔE₀₀) from your pad.</li>
-            <li><b>Match</b> tells how close the pad is to the chart's color path: <i>good</i> ≤ 3 ΔE, <i>fair</i> ≤ 6, <i>poor</i> &gt; 6 (check glare, shadows, marker position and timing).</li>
+            <li><b>Value</b> is always an estimate, interpolated between the two closest chart colors; the range in brackets covers every value whose chart color is practically indistinguishable (within 2 ΔE₀₀) from your pad.</li>
+            <li><b>≈ value, "above/below chart"</b>: the pad's color goes past the chart's last color, so the value is extrapolated along the chart's color trend (up to one chart step beyond). <b>&gt; value</b> means it is even further out.</li>
+            <li><b>Color match</b> tells how close the pad is to the chart's color path: <i>good</i> ≤ 3 ΔE, <i>fair</i> ≤ 6, <i>poor</i> &gt; 6 (check glare, shadows, marker position and timing).</li>
             <li>The bar shows the chart colors <i>as captured in your photo</i>; ▲ marks the reading.</li>
             <li>KH &amp; GH should be read immediately, pH/NO₂/NO₃ after 30 s. With the timer running, each photo is tagged and the best-timed photo is used per parameter.</li>
           </ul>
