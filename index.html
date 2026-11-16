@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Test Strip Analyzer</title>
+    <meta name="description" content="Read aquarium test strips from a photo by comparing each pad to the printed color chart." />
+    <meta name="theme-color" content="#0b5394" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Strip Reader" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="css/app.css" />
+    <script type="module" src="js/app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>🧪 Test Strip Analyzer</h1>
+      <div class="settings">
+        <label>Kit <select id="kit-select" aria-label="Test kit"></select></label>
+        <div class="seg" role="radiogroup" aria-label="Water type" id="water-seg"></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="card" id="timer-card">
+        <h2><span class="step">1</span> Dip &amp; time <small>optional</small></h2>
+        <p class="hint" id="timing-text"></p>
+        <div class="row">
+          <button id="timer-btn" type="button">▶ Start timer</button>
+          <span id="timer-display" class="timer">0:00</span>
+        </div>
+        <p id="timer-hint" class="timer-hint" aria-live="polite"></p>
+      </section>
+
+      <section class="card" id="photo-card">
+        <h2><span class="step">2</span> Photo</h2>
+        <ul class="hint tips">
+          <li>Lay the wet strip <b>on the card</b> right next to the color table, pads facing up.</li>
+          <li>Even light (daylight is best). <b>No flash</b>, no shadows, no glare on the pads.</li>
+          <li>Shoot straight down and fill the frame with the table and the strip.</li>
+        </ul>
+        <div class="row">
+          <label class="btn primary">📷 Take photo<input type="file" accept="image/*" capture="environment" id="file-camera" hidden /></label>
+          <label class="btn">🖼️ Choose photo<input type="file" accept="image/*" id="file-pick" hidden /></label>
+        </div>
+        <p id="photo-status" class="hint"></p>
+      </section>
+
+      <section class="card hidden" id="editor-card">
+        <h2><span class="step">3</span> Mark the chart &amp; strip</h2>
+        <p id="step-prompt" class="prompt" aria-live="polite"></p>
+        <div class="canvas-wrap">
+          <canvas id="photo-canvas" aria-label="Photo – tap to place markers"></canvas>
+          <canvas id="loupe" class="loupe hidden" width="320" height="320"></canvas>
+        </div>
+        <div class="row small">
+          <button id="undo-btn" type="button">↶ Undo</button>
+          <button id="reset-btn" type="button">Clear marks</button>
+          <label class="check"><input type="checkbox" id="align-chk" checked /> Auto-align chart</label>
+          <label class="check"><input type="checkbox" id="overlay-chk" checked /> Show sample spots</label>
+        </div>
+      </section>
+
+      <section class="card hidden" id="results-card">
+        <h2>Results</h2>
+        <div id="warnings"></div>
+        <div id="summary"></div>
+        <div id="results"></div>
+        <div class="row">
+          <button id="save-btn" type="button" class="primary">💾 Save to history</button>
+          <button id="another-btn" type="button">📷 Add another photo</button>
+          <button id="new-btn" type="button">New test</button>
+        </div>
+        <details class="explain">
+          <summary>How to read these results</summary>
+          <ul>
+            <li><b>Value</b> is interpolated between the two closest chart colors; the range in brackets covers every value whose chart color is practically indistinguishable (within 2 ΔE₀₀) from your pad.</li>
+            <li><b>Match</b> tells how close the pad is to the chart's color path: <i>good</i> ≤ 3 ΔE, <i>fair</i> ≤ 6, <i>poor</i> &gt; 6 (check glare, shadows, marker position and timing).</li>
+            <li>The bar shows the chart colors <i>as captured in your photo</i>; ▲ marks the reading.</li>
+            <li>KH &amp; GH should be read immediately, pH/NO₂/NO₃ after 30 s. With the timer running, each photo is tagged and the best-timed photo is used per parameter.</li>
+          </ul>
+        </details>
+      </section>
+
+      <section class="card" id="history-card">
+        <h2>History</h2>
+        <div id="history"></div>
+        <div class="row small">
+          <button id="export-btn" type="button">⬇ Export CSV</button>
+          <button id="clear-btn" type="button">Clear history</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Photos are processed entirely on your device and never uploaded. History is stored in this browser only.</p>
+      <p><a href="https://github.com/canvito/TestStripAnalyzer">Source &amp; docs</a></p>
+    </footer>
+  </body>
+</html>

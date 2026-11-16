@@ -1,0 +1,22 @@
+{
+  "name": "test-strip-analyzer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Read aquarium water test strips from a phone photo by comparing pads to the printed color chart with CIELAB / CIEDE2000.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "serve": "node tools/serve.mjs",
+    "analyze": "node tools/analyze.mjs",
+    "e2e": "node test/e2e/smoke.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/canvito/TestStripAnalyzer.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "jpeg-js": "^0.4.4",
+    "playwright-core": "^1.65.1"
+  }
+}
