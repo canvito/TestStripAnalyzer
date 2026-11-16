@@ -40,8 +40,9 @@ npm run serve        # http://localhost:8080 (also prints a LAN URL you can open
    kit's measured swatch layout onto the photo. The app tries all 4 rotations and keeps the one whose colors best match
    the reference card, so corner order and photo orientation don't matter. **Auto-align** then nudges the corners until
    every sample disc sits inside a uniform swatch, which corrects imprecise taps.
-2. **Strip geometry.** You tap the pad at the strip's tip and the pad nearest the handle. The middle pads are spaced
-   between them, and you can drag any pad marker.
+2. **Strip geometry.** You tap the pad at the strip's tip and the pad nearest the handle. The middle pads are placed
+   at the kit's measured pad positions (API pads are *not* evenly spaced), and auto-align snaps each sample disc to
+   the middle of its pad. You can drag any pad marker.
 3. **Robust sampling.** Each disc is averaged in linear light after dropping clipped pixels and trimming the darkest 10%
    and brightest 20% (texture, specks, glare). Colors are kept in **Display P3** when the browser supports it, so
    saturated reds/purples aren't clipped.
@@ -55,7 +56,10 @@ npm run serve        # http://localhost:8080 (also prints a LAN URL you can open
 
 - The result can only be as good as the **printed chart**. The app removes human color-perception error, not the chart's
   own coarse steps (e.g. NO₂⁻ 0 vs 0.5 are nearly identical on the API card, so expect a range like 0–0.6).
-- Printed ink and a wet pad never match perfectly, so a *fair* match quality on some pads is normal.
+- Printed ink and a wet pad never match perfectly, so a *fair* match quality on some pads is normal. A *poor* match
+  together with a reading at the end of the scale (e.g. `≥ 240`) usually means the true value is beyond the chart.
+- Validated on a real dipped API 5 in 1 strip photographed on its card: pad and swatch samples land correctly from
+  sloppy taps, and the readings agree with careful visual inspection while adding ranges and match quality.
 - Reading **time** matters: API says read KH & GH immediately and pH/NO₂⁻/NO₃⁻ after 30 s. Use the timer and, for best
   results, take two photos (the app picks the best-timed photo per parameter).
 - Strip test kits are screening tools. Confirm alarming results with a liquid test kit.

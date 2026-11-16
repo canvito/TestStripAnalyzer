@@ -57,13 +57,18 @@ export function chartLayout(kit, corners, water, radiusFactor = kit.chart.sample
   return { H, params, whites, pitch };
 }
 
+/** Pad edge length in pixels, from the distance between the first and last pad. */
+export function padSizePx(kit, pads) {
+  return kit.strip.padSize * distance(pads[0], pads[pads.length - 1]);
+}
+
 export function padLayout(kit, pads) {
-  const r = kit.strip.sampleRadius;
-  const list = pads.map((pt, i) => ({ id: kit.strip.padOrder[i], point: pt, radius: neighbourRadius(pads, i, r) }));
+  const size = padSizePx(kit, pads);
+  const list = pads.map((pt, i) => ({ id: kit.strip.padOrder[i], point: pt, radius: kit.strip.sampleRadius * size }));
   // Midpoints between neighbouring pads: the bare (white) strip backing.
   const gaps = pads.slice(1).map((pt, i) => ({
     point: [(pt[0] + pads[i][0]) / 2, (pt[1] + pads[i][1]) / 2],
-    radius: distance(pt, pads[i]) * 0.08,
+    radius: 0.25 * size,
   }));
-  return { pads: list, gaps };
+  return { pads: list, gaps, padSize: size };
 }

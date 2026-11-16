@@ -46,7 +46,7 @@ export function renderScene(kit, o) {
   const len = distance(padEnds[0], padEnds[1]);
   const pitch = len / (pads.length - 1);
   const dir = [(padEnds[1][0] - padEnds[0][0]) / len, (padEnds[1][1] - padEnds[0][1]) / len];
-  const padHalf = pitch * 0.32;
+  const padHalf = (kit.strip.padSize * len) / 2;
   const truth = {};
   const padColors = kit.strip.padOrder.map((id) => {
     const param = kit.params.find((p) => p.id === id);

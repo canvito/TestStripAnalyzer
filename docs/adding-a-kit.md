@@ -39,8 +39,9 @@ Copy `js/kits/api-5in1.js` and edit it:
 | `chart.sampleRadius` | Sample disc radius as a fraction of the swatch pitch (0.24 keeps the disc well inside the swatch). |
 | `chart.whitePoints`, `chart.refWhite` | Blank paper spot(s) `[u, v]` and its color in the reference photo (step 5). |
 | `strip.padOrder` | Parameter ids from the strip's **free tip** toward the handle. |
-| `strip.padPositions` | Pad centers between the tip pad (0) and the last pad (1). Use even spacing unless measured. |
-| `strip.sampleRadius` | Pad sample radius as a fraction of the pad pitch. |
+| `strip.padPositions` | Pad centers between the tip pad (0) and the last pad (1). **Measure them on a real strip** (see below); pads are often not evenly spaced. |
+| `strip.padSize` | Pad edge length as a fraction of the tip-pad-to-last-pad distance. |
+| `strip.sampleRadius` | Pad sample radius as a fraction of the pad edge (0.3 keeps the disc inside the pad). |
 | `strip.tapHints` | Wording for the 2 pad taps. |
 | `waterTypes` | e.g. Freshwater / Saltwater. |
 | `timing` | Instructions shown above the dip timer. |
@@ -48,6 +49,18 @@ Copy `js/kits/api-5in1.js` and edit it:
 | `params[].scales[]` | `{ water: ['fresh', …], values: [...], swatches: [[u, v], …], ref: ['#hex', …] }`. Multiple scales let one pad use a different chart row per water type. A parameter with no scale for the chosen water type is hidden. |
 
 Register the module in [`js/kits/index.js`](../js/kits/index.js).
+
+### Measuring the strip
+
+Photograph a dipped strip lying straight, then note the pixel center of every pad along the strip and the pad edge
+length. With `d` = distance from the tip pad to the last pad:
+
+- `padPositions[i]` = distance from the tip pad to pad *i*, divided by `d` (for API 5 in 1: centers at 94, 293, 533,
+  787, 988 px → `[0, 0.223, 0.491, 0.775, 1]`).
+- `padSize` = pad edge / `d` (API: 78 px / 894 px ≈ 0.087).
+
+Check with `node tools/analyze.mjs strip.jpg --corners … --pads tipX,tipY lastX,lastY --overlay out.jpg`. The green
+circles must sit in the middle of each pad and the cyan ones on the bare strip between pads.
 
 ## 5 · Capture reference colors and verify placement
 

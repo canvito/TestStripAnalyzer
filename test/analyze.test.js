@@ -82,6 +82,21 @@ test('auto-alignment recovers from imprecise corner taps', () => {
   expectReadings(result, truth);
 });
 
+test('pad auto-snap recovers from imprecise pad taps', () => {
+  const { img, truth, pads: truePads } = renderScene(kit, { corners: CORNERS, padEnds: PAD_ENDS, padPositions: POSITIONS });
+  const padSize = kit.strip.padSize * Math.hypot(PAD_ENDS[1][0] - PAD_ENDS[0][0], PAD_ENDS[1][1] - PAD_ENDS[0][1]);
+  const off = 0.22 * padSize;
+  const sloppy = interpolatePads(kit, [PAD_ENDS[0][0] - off, PAD_ENDS[0][1] + off], [PAD_ENDS[1][0] + off, PAD_ENDS[1][1] - off]);
+  const result = analyze(img, kit, { corners: CORNERS, pads: sloppy, space: 'display-p3', refine: true });
+  result.params.forEach((p, i) => {
+    const err = Math.hypot(p.pad.point[0] - truePads[i][0], p.pad.point[1] - truePads[i][1]);
+    // The 0.3-pad-size sample disc must stay well inside the pad.
+    assert.ok(err < 0.15 * padSize, `${p.id} pad snapped to within ${err.toFixed(1)}px of its center`);
+  });
+  assert.deepEqual(result.warnings, []);
+  expectReadings(result, truth);
+});
+
 test('orderClockwise starts at the top-left-most point', () => {
   assert.deepEqual(orderClockwise([[10, 10], [0, 10], [10, 0], [0, 0]]), [[0, 0], [10, 0], [10, 10], [0, 10]]);
 });

@@ -2,6 +2,9 @@
 import { interpolatePads, orderClockwise } from '../core/layout.js';
 
 const HIT_CSS_PX = 26;
+// While markers are still being placed, a tap only grabs an existing marker when it lands right on it,
+// so a pad next to a table corner can still be placed.
+const HIT_PLACING_CSS_PX = 11;
 const HANDLE_CSS_PX = 9;
 const LOUPE_ZOOM = 4;
 
@@ -101,7 +104,7 @@ export class PhotoEditor {
 
   #hit(pt, scale) {
     let best = null;
-    let bestD = HIT_CSS_PX * scale;
+    let bestD = (this.isComplete() ? HIT_CSS_PX : HIT_PLACING_CSS_PX) * scale;
     const consider = (type, list) =>
       list.forEach((p, index) => {
         const d = Math.hypot(p[0] - pt[0], p[1] - pt[1]);

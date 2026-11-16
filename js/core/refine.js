@@ -85,3 +85,30 @@ export function refineCorners(img, kit, corners, water, { maxShift = 0.45 } = {}
   }
   return { corners: best, cost: bestCost, initialCost };
 }
+
+/**
+ * Snap each pad marker to the most uniform spot nearby (a disc fully inside the pad), searching up to
+ * maxShift × pad size around the marker. Returns new pad centers; markers on featureless areas stay put.
+ */
+export function refinePads(img, pads, padSize, { maxShift = 0.35, radiusFactor = 0.46 } = {}) {
+  const r = radiusFactor * padSize;
+  const step = Math.max(1, padSize * 0.04);
+  const pxStep = Math.max(1, Math.round(padSize / 40));
+  const reach = maxShift * padSize;
+  return pads.map(([px, py]) => {
+    let best = [px, py];
+    let bestCost = discStd(img, px, py, r, pxStep);
+    for (let dy = -reach; dy <= reach + 1e-9; dy += step) {
+      for (let dx = -reach; dx <= reach + 1e-9; dx += step) {
+        if (dx * dx + dy * dy > reach * reach) continue;
+        // Prefer staying close to the marker on ties (std noise ~0.5) so flat areas don't drift.
+        const c = discStd(img, px + dx, py + dy, r, pxStep) + (0.6 * Math.hypot(dx, dy)) / reach;
+        if (c < bestCost) {
+          bestCost = c;
+          best = [px + dx, py + dy];
+        }
+      }
+    }
+    return best;
+  });
+}

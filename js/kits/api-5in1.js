@@ -32,9 +32,12 @@ export default {
     // Pad order starting from the free tip of the strip (farthest from where you hold it).
     padOrder: ['no3', 'no2', 'ph', 'kh', 'gh'],
     // Relative pad center positions between the first and last pad (0 = tip pad, 1 = pad nearest the handle).
-    padPositions: [0, 0.25, 0.5, 0.75, 1],
-    // Sample disc radius as a fraction of the distance between neighbouring pad centers.
-    sampleRadius: 0.18,
+    // Measured on a real strip; the pads are NOT evenly spaced.
+    padPositions: [0, 0.223, 0.491, 0.775, 1],
+    // Pad edge length as a fraction of the tip-pad-to-last-pad distance.
+    padSize: 0.087,
+    // Sample disc radius as a fraction of the pad edge length.
+    sampleRadius: 0.3,
     tapHints: ['the pad at the free tip of the strip (Nitrate)', 'the pad nearest the handle (GH)'],
   },
   waterTypes: [

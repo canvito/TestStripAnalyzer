@@ -17,7 +17,8 @@ import { renderScene } from '../helpers/synthetic.js';
 const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '../..');
 const PORT = 8765;
 const CORNERS = [[430, 120], [1080, 95], [1110, 790], [440, 805]];
-const PAD_ENDS = [[250, 140], [262, 700]];
+// Strip lies right next to the table, like on the real card: the tip pad is close to the table's top-left corner.
+const PAD_ENDS = [[380, 140], [392, 700]];
 const POSITIONS = { no3: 1.5, no2: 0, ph: 2.6, kh: 3, gh: 1.25 };
 
 const failures = [];

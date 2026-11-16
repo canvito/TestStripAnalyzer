@@ -47,9 +47,10 @@ about 30 s is fine for a quick check, but KH/GH will be marked *late*.
 4. Check the overlay. White circles sit on the chart swatches and green circles sit on the pads. **Drag any marker** to
    adjust it. If you move an end pad, the middle pads follow (unless you've moved them yourself).
 
-*Auto-align chart* (on by default) fits the table outline (cyan) so every white circle sits inside its swatch, even if
-your taps were a bit off. Your orange corner markers stay where you put them, and alignment always starts from them, so
-turning it off uses your exact taps. *Show sample spots* toggles the circles.
+*Auto-align markers* (on by default) fits the table outline (cyan) so every white circle sits inside its swatch, and
+snaps every green circle to the middle of its pad, even if your taps were a bit off. Your own markers stay where you
+put them, and alignment always starts from them, so turning it off uses your exact taps. *Show sample spots* toggles the
+circles.
 
 ## 5 · Read the results
 
@@ -69,7 +70,7 @@ Each parameter shows:
 | Warning | Fix |
 | --- | --- |
 | *pad sample is not uniform* | Drag the green marker to the middle of the pad. |
-| *chart swatch … overlaps an edge or text* | Adjust the table corners (or turn on *Auto-align chart*). |
+| *chart swatch … overlaps an edge or text* | Adjust the table corners (or turn on *Auto-align markers*). |
 | *glare / over-exposure* | Tilt the card slightly or move away from direct light. No flash. |
 | *Strip and chart look unevenly lit* | Put the strip on the card and remove shadows. |
 | *chart … does not look like the … card* | The corners aren't on the color table's outer corners, or the wrong kit is selected. |

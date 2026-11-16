@@ -1,6 +1,6 @@
 // End-to-end analysis of one photo: chart swatches + strip pads -> readings with quality checks.
-import { scaleFor, orderClockwise, rotate, chartLayout, padLayout } from './layout.js';
-import { refineCorners } from './refine.js';
+import { scaleFor, orderClockwise, rotate, chartLayout, padLayout, padSizePx } from './layout.js';
+import { refineCorners, refinePads } from './refine.js';
 import { sampleDisc } from './sample.js';
 import { matchScale, fitQuality, DEFAULT_TOLERANCE } from './match.js';
 import { deltaE2000, linearRgbToLab, decodeChannel } from './color.js';
@@ -71,7 +71,7 @@ function sampleChart(img, kit, corners, water, space) {
  * @param {string} [opts.water]     'fresh' | 'salt'
  * @param {string} [opts.space]     'srgb' | 'display-p3' — color space of the pixel values
  * @param {boolean} [opts.autoOrient] pick the corner rotation that best matches the reference card
- * @param {boolean} [opts.refine]   nudge corners so sample discs are centered in the swatches
+ * @param {boolean} [opts.refine]   nudge corners / pads so sample discs are centered in swatches and pads
  */
 export function analyze(img, kit, { corners, pads, water = 'fresh', space = 'srgb', autoOrient = true, refine = false, tolerance = DEFAULT_TOLERANCE } = {}) {
   if (!corners || corners.length !== 4) throw new Error('Need 4 chart corners');
@@ -92,7 +92,7 @@ export function analyze(img, kit, { corners, pads, water = 'fresh', space = 'srg
   }
   const usedCorners = chart.corners;
 
-  const strip = padLayout(kit, pads);
+  const strip = padLayout(kit, refine ? refinePads(img, pads, padSizePx(kit, pads)) : pads);
   const padSamples = strip.pads.map((p) => sampleDisc(img, p.point[0], p.point[1], p.radius, space));
   const gapSamples = strip.gaps.map((g) => sampleDisc(img, g.point[0], g.point[1], g.radius, space));
   const stripWhite = averageSamples(gapSamples, space);
