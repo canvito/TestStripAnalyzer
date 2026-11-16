@@ -24,7 +24,7 @@ trustworthy each reading is.
 
 ## Quick start
 
-**On your phone:** open the hosted app (see [Deploying](#deploying)) → *Take photo* → tap the 4 corners of the color
+**On your phone:** open **<https://canvo.com/TestStripAnalyzer/>** → *Take photo* → tap the 4 corners of the color
 table → tap the tip pad and the last pad of the strip → read the results. Full walkthrough: [docs/user-guide.md](docs/user-guide.md).
 
 **On this PC (development):**
@@ -91,13 +91,18 @@ Node 20+ is required for the tools and tests. The app itself needs only a modern
 
 ## Deploying
 
-The site is plain static files. `.github/workflows/pages.yml` publishes `index.html`, `css/`, `js/`, `icon.svg` and
-`manifest.webmanifest` to **GitHub Pages** on every push to `main`. `.github/workflows/ci.yml` runs `npm test`.
+**Live app: <https://canvo.com/TestStripAnalyzer/>**. The account's GitHub Pages custom domain is `canvo.com`;
+`canvito.github.io/TestStripAnalyzer` redirects there. On iPhone, open it in Safari → Share → *Add to Home Screen* to use
+it like an app.
 
-One-time setup: repository **Settings → Pages → Source: GitHub Actions**. GitHub Pages on a **private** repository
-requires a paid plan (Pro/Team). Otherwise make the repository public, or host the same files on any static host.
-The app URL will be `https://canvito.github.io/TestStripAnalyzer/`. On iPhone, open it in Safari →
-Share → *Add to Home Screen* to use it like an app.
+The site is plain static files. `.github/workflows/pages.yml` publishes `index.html`, `css/`, `js/`, `icon.svg` and
+`manifest.webmanifest` to **GitHub Pages** on every push to `main`, and `.github/workflows/ci.yml` runs `npm test`.
+Pages is already enabled (repository **Settings → Pages → Source: GitHub Actions**), so pushing to `main` updates the
+live app within a minute or two. Check progress under the repository's **Actions** tab. To redeploy without a code
+change, run the *Deploy to GitHub Pages* workflow manually (*Run workflow*).
+
+Saved history lives in the browser's local storage for the `canvo.com` origin, which every Pages site on that domain
+shares. The app namespaces its keys (`tsa.*`) and treats stored data as untrusted.
 
 ## License
 

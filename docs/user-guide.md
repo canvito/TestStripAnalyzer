@@ -5,7 +5,8 @@ How to test your aquarium water with the Test Strip Analyzer. This guide uses th
 ## What you need
 
 - The test strips and the kit's **flat color card** (the leaflet in the box, not the bottle label).
-- A phone with a camera. Open the app in Safari or Chrome. On iPhone: Share → *Add to Home Screen* for one-tap access.
+- A phone with a camera. Open **<https://canvo.com/TestStripAnalyzer/>** in Safari or Chrome. On iPhone: Share →
+  *Add to Home Screen* for one-tap access.
 - Good, even light. Daylight near a window (not direct sun) is ideal. **Avoid flash.**
 
 ## 1 · Set up (once)

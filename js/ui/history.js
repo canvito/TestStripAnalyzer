@@ -1,6 +1,6 @@
 // Reading history kept in localStorage, with CSV export.
-// Note: on GitHub Pages every project site of the account shares one origin (and localStorage), so stored entries
-// are treated as untrusted: validated on load and escaped on render.
+// Note: on GitHub Pages every site of the account shares one origin (here the custom domain), and therefore
+// one localStorage, so stored entries are treated as untrusted: validated on load and escaped on render.
 import { formatReading } from '../core/format.js';
 import { esc } from './html.js';
 
