@@ -2,6 +2,7 @@
 // Note: on GitHub Pages every site of the account shares one origin (here the custom domain), and therefore
 // one localStorage, so stored entries are treated as untrusted: validated on load and escaped on render.
 import { formatReading } from '../core/format.js';
+import { assess, PROFILES } from '../core/targets.js';
 import { esc } from './html.js';
 
 const KEY = 'tsa.history.v1';
@@ -47,9 +48,11 @@ export function clearHistory() {
 }
 
 /** Build a history entry from combined readings ({ p, status } items, see results.combine). */
-export function makeEntry(kit, water, combined) {
+export function makeEntry(kit, water, combined, profile) {
+  const statuses = profile ? assess(combined.map((c) => c.p), profile).statuses : {};
   const readings = {};
   for (const { p, status } of combined) {
+    const s = statuses[p.id];
     readings[p.id] = {
       value: round(p.match.value, p.decimals + 1),
       low: round(p.match.range[0], p.decimals + 1),
@@ -57,13 +60,22 @@ export function makeEntry(kit, water, combined) {
       outOfRange: p.match.outOfRange,
       atLimit: p.match.atLimit,
       quality: p.quality,
+      status: s ? s.label : null,
+      severity: s ? s.severity : null,
       timing: status,
       text: formatReading(p),
       decimals: p.decimals,
       unit: p.unit,
     };
   }
-  return { id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, date: new Date().toISOString(), kitId: kit.id, water, readings };
+  return {
+    id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+    date: new Date().toISOString(),
+    kitId: kit.id,
+    water,
+    profileId: profile?.id ?? null,
+    readings,
+  };
 }
 
 const round = (v, d) => Math.round(v * 10 ** d) / 10 ** d;
@@ -76,15 +88,17 @@ function csvCell(v) {
 
 export function toCsv(list, kits) {
   const ids = [...new Set(kits.flatMap((k) => k.params.map((p) => p.id)))];
-  const header = ['date', 'kit', 'water', ...ids.flatMap((id) => [`${id}`, `${id}_low`, `${id}_high`, `${id}_quality`, `${id}_chart`])];
+  const header = ['date', 'kit', 'water', 'tank', ...ids.flatMap((id) => [`${id}`, `${id}_low`, `${id}_high`, `${id}_status`, `${id}_quality`, `${id}_chart`])];
+  // `<id>_status`: Normal / Low / High / Very low / Very high for the tank type chosen when saved.
   // `<id>_chart`: "above"/"below" when the value was extrapolated beyond the chart, empty when within it.
   const rows = list.map((e) => [
     e.date,
     e.kitId,
     e.water,
+    PROFILES.find((p) => p.id === e.profileId)?.name ?? '',
     ...ids.flatMap((id) => {
       const r = e.readings[id];
-      return isObject(r) ? [r.value, r.low, r.high, r.quality, r.outOfRange ?? ''] : ['', '', '', '', ''];
+      return isObject(r) ? [r.value, r.low, r.high, r.status ?? '', r.quality, r.outOfRange ?? ''] : ['', '', '', '', '', ''];
     }),
   ]);
   return [header, ...rows].map((r) => r.map(csvCell).join(',')).join('\n');
@@ -106,7 +120,10 @@ export function renderHistory(el, list, kit, { onDelete }) {
           const v = Number(r?.value);
           if (!isObject(r) || !Number.isFinite(v)) return '<td>—</td>';
           const prefix = r.atLimit === 'above' ? '>' : r.atLimit === 'below' ? '<' : r.outOfRange ? '≈' : '';
-          return `<td class="${r.quality === 'poor' ? 'poor' : ''}" title="${esc(r.text)}">${prefix}${v.toFixed(safeDecimals(r.decimals))}</td>`;
+          const cls = ['caution', 'danger'].includes(r.severity) ? `s-${r.severity}` : '';
+          const flag = r.severity === 'danger' ? ' ⛔' : r.severity === 'caution' ? ' ⚠' : '';
+          const title = [r.text, r.status].filter(Boolean).join(' — ');
+          return `<td class="${cls}" title="${esc(title)}">${prefix}${v.toFixed(safeDecimals(r.decimals))}${flag}</td>`;
         })
         .join('');
       const when = Number.isNaN(d.getTime()) ? '?' : `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;

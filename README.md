@@ -7,9 +7,12 @@ trustworthy each reading is.
 
 - Runs entirely **in the browser** (phone or PC). Photos never leave your device.
 - Currently supports **API 5 in 1 Test Strips** (pH, NO₂⁻, NO₃⁻, KH, GH; freshwater & saltwater pH rows).
+- Rates every reading **Normal / Low / High** (or *Very* low/high) for your tank type and says **what to do** when
+  a value is off target.
 - No install and no build step: a static site you can host on GitHub Pages.
 
 > 📖 **Using the app?** Read the [User guide](docs/user-guide.md).
+> 🎯 **Target ranges, sources & corrective actions:** [Targets](docs/targets.md).
 > 🧩 **Adding another kit/brand?** See [Adding a kit](docs/adding-a-kit.md).
 
 ## Why it beats eyeballing
@@ -20,6 +23,7 @@ trustworthy each reading is.
 | Neighbouring chart colors look alike | Uses the perceptual **CIELAB / CIEDE2000 (ΔE₀₀)** color difference on hundreds of averaged pixels per spot. |
 | Pads fall *between* two chart colors | Treats the chart as a color path and **interpolates** the value (e.g. pH 7.3 instead of "7.0 or 7.5?"). |
 | "Is that 0 or 0.5?" | Reports a **range** of every value that's practically indistinguishable (within 2 ΔE₀₀), so you can see when the chart itself can't tell them apart. |
+| "Is that OK, and what do I do?" | Compares each value with the target range for your **tank type** (community, planted, soft water, Rift Lake cichlids, marine fish-only, reef) and lists **corrective actions**, including cross-checks like "pH is high because KH is high". |
 | Glare, shadows, wrong timing | Warns about glare/over-exposure, uneven lighting, misplaced markers and early/late readings (with the built-in dip timer). |
 
 ## Quick start
@@ -52,7 +56,9 @@ npm run serve        # http://localhost:8080 (also prints a LAN URL you can open
    If the pad's color goes **past the first or last swatch**, the path is extended up to one chart step along the
    chart's color trend. The app still gives an estimate (e.g. `≈ 259 ppm`), clearly marked as *extrapolated*.
    Concentration scales never go below 0.
-5. **Quality checks.** These cover non-uniform samples (marker on an edge or on text), glare/clipping, strip-vs-chart
+5. **Targets.** The estimate is rated Normal / Low / High / Very low / Very high against the selected tank type's
+   ranges, with corrective actions and cross-parameter checks (see [docs/targets.md](docs/targets.md)).
+6. **Quality checks.** These cover non-uniform samples (marker on an edge or on text), glare/clipping, strip-vs-chart
    lighting mismatch, a chart that doesn't look like the expected card, and read timing.
 
 ### Accuracy notes & limitations
@@ -72,12 +78,13 @@ npm run serve        # http://localhost:8080 (also prints a LAN URL you can open
 
 ```
 index.html, css/, icon.svg, manifest.webmanifest   static web app (no build step)
-js/core/      color science (CIELAB, ΔE2000), homography, sampling, matching, auto-align, analysis pipeline
+js/core/      color science (CIELAB, ΔE2000), homography, sampling, matching, auto-align, analysis pipeline,
+              targets.js (tank-type target ranges, status, corrective actions)
 js/kits/      kit definitions (chart layout, values, strip pad order, timing) – one file per kit
 js/ui/        browser UI: photo editor (tap/drag + loupe), results, dip timer, history (localStorage, CSV)
 tools/        Node CLIs: analyze.mjs, rectify.mjs, kit-colors.mjs, serve.mjs
 test/         unit tests (node:test) incl. synthetic photos with known truth; test/e2e/smoke.mjs browser test
-docs/         user guide, adding a kit
+docs/         user guide, targets & actions, adding a kit
 ```
 
 ## Development

@@ -1,6 +1,7 @@
 // Rendering of readings, warnings and the multi-photo summary.
 import { cssColor } from '../core/color.js';
 import { formatReading, readingParts } from '../core/format.js';
+import { formatTarget } from '../core/targets.js';
 import { esc } from './html.js';
 
 export function formatElapsed(sec) {
@@ -38,7 +39,38 @@ export function renderWarnings(el, warnings) {
   el.innerHTML = warnings.map((w) => `<div class="warn ${w.level === 'error' ? 'error' : ''}">⚠️ ${esc(w.message)}</div>`).join('');
 }
 
-function paramCard(p, space, elapsed) {
+const STATUS_ICON = { ok: '✓', caution: '⚠', danger: '⛔' };
+
+export function statusBadge(s) {
+  return s ? `<span class="status s-${s.severity}">${STATUS_ICON[s.severity]} ${esc(s.label)}</span>` : '';
+}
+
+function statusBlock(p, s, profile) {
+  if (!s) return '';
+  const target = `<span class="target">Target ${esc(formatTarget(s.range, p))} · ${esc(profile.name)}</span>`;
+  const actions = s.actions.length
+    ? `<details class="actions s-${s.severity}" open><summary>What to do</summary><ul>${s.actions.map((a) => `<li>${esc(a)}</li>`).join('')}</ul></details>`
+    : '';
+  return `<div class="status-row">${statusBadge(s)}${target}</div>${actions}`;
+}
+
+/** Overall verdict box: counts per severity, cross-parameter insights and profile notes. */
+export function renderAssessment(el, assessment, paramsById) {
+  const { profile, statuses, insights, counts } = assessment;
+  const flagged = Object.entries(statuses).filter(([, s]) => s.level !== 'normal');
+  const severity = counts.danger ? 'danger' : counts.caution ? 'caution' : 'ok';
+  const headline = flagged.length
+    ? `${flagged.length} reading${flagged.length > 1 ? 's' : ''} outside the ${esc(profile.name)} targets: ${flagged
+        .map(([id, s]) => `<b>${esc(paramsById[id]?.name ?? id)}</b> ${esc(s.label.toLowerCase())}`)
+        .join(', ')}.`
+    : `All readings are within the ${esc(profile.name)} targets.`;
+  const list = (items) => (items.length ? `<ul>${items.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : '');
+  el.innerHTML = `<div class="assess s-${severity}"><p>${STATUS_ICON[severity]} ${headline}</p>${list(insights)}
+    ${profile.notes.map((n) => `<p class="hint">ℹ️ ${esc(n)}</p>`).join('')}
+    <p class="hint">General guidance — check your species’ needs, and change water chemistry gradually.</p></div>`;
+}
+
+function paramCard(p, space, elapsed, targetStatus, profile) {
   const n = p.swatches.length;
   const pct = (pos) => ((pos + 0.5) / n) * 100;
   const sw = p.swatches
@@ -66,6 +98,7 @@ function paramCard(p, space, elapsed) {
       <div class="param-name"><b>${esc(p.name)}</b><span>${esc(p.symbol)}</span></div>
       <div class="param-value">${esc(r.main)}<small>${esc(extra)}</small></div>
     </div>
+    ${statusBlock(p, targetStatus, profile)}
     <div class="scale">
       <div class="swatches">${sw}</div>
       <div class="range" style="left:${pct(lo) - pad}%;width:${pct(hi) - pct(lo) + 2 * pad}%"></div>
@@ -80,8 +113,8 @@ function paramCard(p, space, elapsed) {
   </div>`;
 }
 
-export function renderResults(el, result, elapsed) {
-  el.innerHTML = result.params.map((p) => paramCard(p, result.space, elapsed)).join('');
+export function renderResults(el, result, elapsed, assessment) {
+  el.innerHTML = result.params.map((p) => paramCard(p, result.space, elapsed, assessment?.statuses[p.id], assessment?.profile)).join('');
 }
 
 /** Pick, for every parameter, the reading from the best-timed photo (ties -> latest photo). */
@@ -101,19 +134,19 @@ export function combine(photos, kit) {
   return out;
 }
 
-export function renderSummary(el, combined, photoCount) {
+export function renderSummary(el, combined, photoCount, assessment) {
   if (photoCount < 2) {
     el.innerHTML = '';
     return;
   }
   const rows = combined
     .map(
-      (c) => `<tr><td>${esc(c.p.symbol)}</td><td>${esc(formatReading(c.p))}</td>
+      (c) => `<tr><td>${esc(c.p.symbol)}</td><td>${esc(formatReading(c.p))}</td><td>${statusBadge(assessment?.statuses[c.p.id])}</td>
         <td>photo ${c.idx + 1}${c.photo.elapsed != null ? ` · ${formatElapsed(c.photo.elapsed)}` : ''}</td>
         <td>${c.status ? `<span class="tag ${c.status}">${c.status}</span>` : ''}</td></tr>`,
     )
     .join('');
   el.innerHTML = `<div class="summary"><h3>Combined reading (${photoCount} photos, best-timed photo per parameter)</h3>
-    <div class="table-scroll"><table><thead><tr><th>Test</th><th>Reading</th><th>Source</th><th>Timing</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="table-scroll"><table><thead><tr><th>Test</th><th>Reading</th><th>Status</th><th>Source</th><th>Timing</th></tr></thead><tbody>${rows}</tbody></table></div>
     <p class="hint">Details below are for the latest photo.</p></div>`;
 }

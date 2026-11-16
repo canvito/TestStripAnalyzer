@@ -3,15 +3,19 @@ import { KITS, getKit } from './kits/index.js';
 import { analyze } from './core/analyze.js';
 import { PhotoEditor } from './ui/editor.js';
 import { loadImageFile } from './ui/image-load.js';
-import { renderResults, renderWarnings, renderSummary, combine, formatElapsed } from './ui/results.js';
+import { renderResults, renderWarnings, renderSummary, renderAssessment, combine, formatElapsed } from './ui/results.js';
 import { loadHistory, addEntry, deleteEntry, clearHistory, makeEntry, toCsv, renderHistory } from './ui/history.js';
 import { DipTimer } from './ui/timer.js';
+import { profilesFor, getProfile, assess } from './core/targets.js';
 
 const $ = (id) => document.getElementById(id);
 const SETTINGS_KEY = 'tsa.settings.v1';
 
-const settings = { kitId: KITS[0].id, water: 'fresh', align: true, overlay: true, ...readJson(SETTINGS_KEY) };
+const settings = { kitId: KITS[0].id, water: 'fresh', align: true, overlay: true, profiles: {}, ...readJson(SETTINGS_KEY) };
+if (typeof settings.profiles !== 'object' || settings.profiles === null) settings.profiles = {};
 let kit = KITS.find((k) => k.id === settings.kitId) ?? KITS[0];
+
+const profile = () => getProfile(settings.profiles[settings.water], settings.water);
 
 /** Photos of the current test. Each: { name, elapsed, image, marks, result } */
 let photos = [];
@@ -43,9 +47,18 @@ function renderSettings() {
     .map((w) => `<button type="button" role="radio" data-water="${w.id}" aria-checked="${w.id === settings.water}">${w.name}</button>`)
     .join('');
   $('timing-text').textContent = kit.timing;
+  $('tank-select').innerHTML = profilesFor(settings.water)
+    .map((p) => `<option value="${p.id}" title="${p.description}" ${p.id === profile().id ? 'selected' : ''}>${p.name}</option>`)
+    .join('');
   $('align-chk').checked = settings.align;
   $('overlay-chk').checked = settings.overlay;
 }
+
+$('tank-select').addEventListener('change', (e) => {
+  settings.profiles[settings.water] = e.target.value;
+  saveSettings();
+  renderAll();
+});
 
 $('kit-select').addEventListener('change', (e) => {
   kit = getKit(e.target.value);
@@ -178,10 +191,16 @@ function renderAll() {
     return;
   }
   card.classList.remove('hidden');
-  renderSummary($('summary'), combine(analyzed, kit), analyzed.length);
+  const combined = combine(analyzed, kit);
+  const overall = assess(
+    combined.map((c) => c.p),
+    profile(),
+  );
+  renderAssessment($('assessment'), overall, Object.fromEntries(kit.params.map((p) => [p.id, p])));
+  renderSummary($('summary'), combined, analyzed.length, overall);
   if (current?.result) {
     renderWarnings($('warnings'), current.result.warnings);
-    renderResults($('results'), current.result, current.elapsed);
+    renderResults($('results'), current.result, current.elapsed, assess(current.result.params, profile()));
   } else {
     $('warnings').innerHTML = '';
     $('results').innerHTML = '<p class="hint">Finish marking the current photo to see its reading.</p>';
@@ -192,7 +211,7 @@ function renderAll() {
 $('save-btn').addEventListener('click', () => {
   const analyzed = photos.filter((p) => p.result);
   if (!analyzed.length) return;
-  const entry = makeEntry(kit, settings.water, combine(analyzed, kit));
+  const entry = makeEntry(kit, settings.water, combine(analyzed, kit), profile());
   refreshHistory(addEntry(entry));
   const btn = $('save-btn');
   btn.textContent = '✓ Saved';

@@ -94,6 +94,14 @@ try {
   }
   check((await page.$$('#warnings .warn')).length === 0, 'no warnings');
 
+  // Status vs. tank-type targets (synthetic GH 37.5 ppm ≈ 2.1 °dGH is below the community minimum of 4 °dGH).
+  check((await page.textContent('[data-param="ph"] .status')).includes('Normal'), 'pH 7.3 is Normal for a community tank');
+  check((await page.textContent('[data-param="gh"] .status')).includes('Low') && (await page.$$('[data-param="gh"] .actions li')).length > 0, 'low GH shows corrective actions');
+  check(/1 reading outside the Community tropical targets/.test(await page.textContent('#assessment')), 'verdict box summarizes flagged readings');
+  await page.selectOption('#tank-select', 'fw-rift-cichlid');
+  check((await page.textContent('[data-param="ph"] .status')).includes('Low'), 'the same pH is Low for Rift Lake cichlids');
+  await page.selectOption('#tank-select', 'fw-community');
+
   // Auto-align never overwrites the user's taps; turning it off analyzes the exact taps.
   const tapped = [2, 0, 3, 1].map((i) => [CORNERS[i][0] + 6, CORNERS[i][1] - 5]);
   const marks = await page.evaluate(() => window.__tsa.editor.corners);

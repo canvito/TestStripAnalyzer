@@ -11,8 +11,10 @@ How to test your aquarium water with the Test Strip Analyzer. This guide uses th
 
 ## 1 · Set up (once)
 
-At the top of the app pick the **Kit** and **Freshwater / Saltwater**. Saltwater uses the saltwater pH row, and GH is
-hidden because the API card has no saltwater GH scale. The app remembers these settings.
+At the top of the app pick the **Kit**, **Freshwater / Saltwater**, and your **Tank** type: Community tropical,
+Planted, Soft water, African Rift Lake cichlids, Marine fish-only, or Reef. Saltwater uses the saltwater pH row, and GH
+is hidden because the API card has no saltwater GH scale. The tank type sets the target ranges used for the
+Normal / Low / High status (see [targets](targets.md)). The app remembers these settings.
 
 ## 2 · Dip & time
 
@@ -57,6 +59,14 @@ circles.
 
 Each parameter shows:
 
+- **Status badge** under the name:
+  - ✓ **Normal**.
+  - ⚠ **Low / High**: outside the target for your tank type.
+  - ⛔ **Very low / Very high**: act now.
+
+  It is followed by the target range. When the reading is outside the target, a **What to do** list explains how to
+  correct it safely and gradually. The box at the top of the results summarizes all flagged readings and adds
+  cross-checks, e.g. "pH is high *because* KH is high — lower KH first". Ranges and sources: [targets](targets.md).
 - **Big number.** The estimated value, interpolated between chart colors, e.g. `7.3`. KH/GH also show °dKH/°dGH.
   There is always a number:
   - `≈ 9.2` with an *above chart / below chart, extrapolated* note means the pad's color goes past the chart's last
@@ -87,9 +97,10 @@ Each parameter shows:
 ## 6 · Save & track
 
 - **💾 Save to history** stores the (combined) reading in this browser on this device.
-- **⬇ Export CSV** downloads every saved reading for a spreadsheet. Per parameter you get value, low, high, quality,
-  and `_chart` (`above`/`below` when the value was extrapolated beyond the chart). In the history table, ≈ marks an
-  extrapolated value.
+- **⬇ Export CSV** downloads every saved reading for a spreadsheet: the tank type, then per parameter the value, low,
+  high, `_status` (Normal/Low/High/Very …), quality, and `_chart` (`above`/`below` when the value was extrapolated
+  beyond the chart). In the history table, ≈ marks an extrapolated value, and ⚠ (amber) or ⛔ (red) marks readings that
+  were outside the target when saved.
 - **New test** clears the photos and timer for the next strip.
 
 History lives in the browser's local storage. Clearing site data or using a different browser/device starts empty.
