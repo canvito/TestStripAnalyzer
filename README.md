@@ -11,6 +11,8 @@ trustworthy each reading is.
   shows the **potential impact** and a **suggested mitigation**, with step-by-step instructions.
 - No install and no build step: a static site you can host on GitHub Pages.
 
+> ⚠️ **For educational use only.** Results are photo-based estimates and may be inaccurate. See the [Disclaimer](DISCLAIMER.md).
+>
 > 📖 **Using the app?** Read the [User guide](docs/user-guide.md).
 > 🎯 **Target ranges, sources, potential impacts & corrective actions:** [Targets](docs/targets.md).
 > 🧩 **Adding another kit/brand?** See [Adding a kit](docs/adding-a-kit.md).
@@ -137,6 +139,13 @@ Resolve-DnsName canvo.com -Type A                                               
 (Invoke-WebRequest https://canvo.com/TestStripAnalyzer/ -Method Head).Headers.Server  # GitHub.com
 gh api repos/canvito/canvito.github.io/pages --jq .cname                              # canvo.com
 ```
+
+## Disclaimer
+
+For educational use only. Readings are computer-vision estimates whose accuracy depends on the photo, the strip and
+the printed chart. They are not professional advice, come with no warranty, and should be confirmed with a liquid test
+kit before acting. Full text: [DISCLAIMER.md](DISCLAIMER.md). The app shows it at the top of the home page until the
+user taps *I understand*, then keeps a one-line reminder; the footer links back to it.
 
 ## License
 

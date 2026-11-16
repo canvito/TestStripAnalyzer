@@ -68,7 +68,7 @@ export function renderAssessment(el, assessment, paramsById) {
   const list = (items) => (items.length ? `<ul>${items.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : '');
   el.innerHTML = `<div class="assess s-${severity}"><p>${STATUS_ICON[severity]} ${headline}</p>${list(insights)}
     ${profile.notes.map((n) => `<p class="hint">ℹ️ ${esc(n)}</p>`).join('')}
-    <p class="hint">General guidance — check your species’ needs, and change water chemistry gradually.</p></div>`;
+    <p class="hint">Educational estimate, not professional advice — confirm important results with a liquid test kit, check your species’ needs, and change water chemistry gradually.</p></div>`;
 }
 
 function paramCard(p, space, elapsed, targetStatus, profile) {

@@ -260,6 +260,23 @@ $('clear-btn').addEventListener('click', () => {
 renderSettings();
 refreshHistory();
 updatePrompt();
+initDisclaimer();
+
+// ---------- disclaimer ----------
+
+// Bump the key when the disclaimer text changes materially, so everyone sees it in full again.
+function initDisclaimer() {
+  const DISCLAIMER_KEY = 'tsa.disclaimer.v1';
+  const card = $('disclaimer');
+  if (localStorage.getItem(DISCLAIMER_KEY)) card.classList.add('acked');
+  $('disclaimer-ack').addEventListener('click', () => {
+    localStorage.setItem(DISCLAIMER_KEY, new Date().toISOString());
+    card.classList.add('acked');
+  });
+  $('footer-disclaimer-link').addEventListener('click', () => {
+    $('disclaimer-full').open = true;
+  });
+}
 
 // Exposed for automated end-to-end tests.
 window.__tsa = { editor, get photos() { return photos; }, openPhoto };

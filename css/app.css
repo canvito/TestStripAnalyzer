@@ -125,6 +125,63 @@ main {
   display: none !important;
 }
 
+.disclaimer {
+  border-left: 5px solid var(--fair);
+  background: #fffaf2;
+  font-size: 0.9rem;
+  scroll-margin-top: 150px; /* keep the title clear of the sticky header when jumping from the footer link */
+}
+
+.disclaimer h2 {
+  display: block;
+}
+
+.disclaimer-summary {
+  margin: 4px 0 8px;
+}
+
+.disclaimer details summary {
+  cursor: pointer;
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.disclaimer ol {
+  padding-left: 20px;
+  margin: 8px 0 4px;
+}
+
+.disclaimer li {
+  margin: 5px 0;
+}
+
+.disclaimer-short {
+  display: none;
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* After "I understand": keep a one-line reminder and the expandable full text. */
+.disclaimer.acked {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.disclaimer.acked h2 {
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.disclaimer.acked .disclaimer-short {
+  display: inline;
+}
+
+.disclaimer.acked .disclaimer-summary,
+.disclaimer.acked .disclaimer-ack-row {
+  display: none;
+}
+
 .hint {
   color: var(--muted);
   font-size: 0.9rem;

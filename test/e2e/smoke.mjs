@@ -42,6 +42,12 @@ try {
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
 
   await page.goto(`http://localhost:${PORT}/`);
+  // Disclaimer: full text on first visit, collapses to a reminder once acknowledged, and stays acknowledged.
+  check((await page.isVisible('.disclaimer-summary')) && (await page.isVisible('#disclaimer-ack')), 'disclaimer is shown in full on first visit');
+  await page.click('#disclaimer-ack');
+  check(!(await page.isVisible('.disclaimer-summary')) && (await page.isVisible('.disclaimer-short')), 'acknowledged disclaimer collapses to a one-line reminder');
+  await page.click('#footer-disclaimer-link');
+  check(await page.$eval('#disclaimer-full', (d) => d.open), 'footer link opens the full disclaimer');
   // A hostile history entry (other sites on the same github.io origin share localStorage) must render as text.
   await page.evaluate(() => {
     const evil = '<img src=x onerror="window.__pwned=1">';
@@ -53,6 +59,7 @@ try {
   await page.evaluate(() => localStorage.removeItem('tsa.history.v1'));
   await page.reload();
 
+  check(await page.$eval('#disclaimer', (el) => el.classList.contains('acked')), 'disclaimer acknowledgement is remembered after reload');
   await page.setInputFiles('#file-pick', photo);
   await page.waitForSelector('#editor-card:not(.hidden)');
   await page.evaluate(() => document.getElementById('photo-canvas').scrollIntoView({ block: 'center' }));

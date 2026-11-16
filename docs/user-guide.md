@@ -2,6 +2,10 @@
 
 How to test your aquarium water with the Test Strip Analyzer. This guide uses the API 5 in 1 kit, but other kits work the same way.
 
+> ⚠️ **For educational use only.** Readings are estimates from your photo and may be inaccurate. Confirm important
+> results with a liquid test kit before treating your water or animals. See the [Disclaimer](../DISCLAIMER.md). The app shows
+> it on first use; tap **I understand** to shrink it to a one-line reminder.
+
 ## What you need
 
 - The test strips and the kit's **flat color card** (the leaflet in the box, not the bottle label).

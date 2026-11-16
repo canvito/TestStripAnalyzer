@@ -24,6 +24,51 @@
     </header>
 
     <main>
+      <section class="card disclaimer" id="disclaimer" role="note" aria-labelledby="disclaimer-title">
+        <h2 id="disclaimer-title">⚠️ For educational use only<span class="disclaimer-short"> · results are estimates and may be inaccurate</span></h2>
+        <p class="disclaimer-summary">
+          Readings are <b>estimates</b> made by computer vision from your photo, and <b>may be inaccurate</b>. Accuracy
+          depends on how the photo is taken (lighting, focus, glare, shadows, camera), the condition and timing of the
+          strip, and the printed chart. Don’t rely on this tool alone: <b>confirm important results with a liquid test
+          kit</b> before treating your water or animals.
+        </p>
+        <details id="disclaimer-full">
+          <summary>Full disclaimer</summary>
+          <ol>
+            <li><b>Educational and informational use only.</b> This tool is not professional, veterinary or water-treatment advice.</li>
+            <li>
+              <b>Estimates, not measurements.</b> Results are computed from a photograph by comparing colors and may be
+              inaccurate or wrong. They depend on the photo (lighting, white balance, focus, glare, shadows, angle), the
+              device and browser, where the markers are placed, the test strip (expired, contaminated or badly stored strips,
+              read timing) and the printed color chart. Test strips themselves have limited precision.
+            </li>
+            <li>
+              <b>Targets and advice are general guidance.</b> Target ranges, status labels, potential impacts and suggested
+              mitigations come from common hobby references and may not suit your species or setup.
+            </li>
+            <li>
+              <b>Verify before acting.</b> Confirm results with a quality liquid test kit or a professional before changing
+              water chemistry, dosing products or medicating, and make changes gradually.
+            </li>
+            <li><b>No warranty.</b> The tool is provided “as is”, without warranty of any kind, as stated in its MIT license.</li>
+            <li>
+              <b>Limitation of liability.</b> To the fullest extent permitted by law, the authors and contributors are not
+              liable for any loss or damage — including loss of fish, invertebrates, plants, equipment or property — arising
+              from the use of, or reliance on, this tool. You use it at your own risk and remain responsible for the care of
+              your animals.
+            </li>
+            <li>
+              <b>No affiliation.</b> Not affiliated with, endorsed or sponsored by API®, Mars Fishcare or any test-kit
+              manufacturer. Trademarks belong to their owners.
+            </li>
+            <li><b>Privacy.</b> Photos are processed on your device and never uploaded. History stays in this browser.</li>
+          </ol>
+        </details>
+        <div class="row disclaimer-ack-row">
+          <button id="disclaimer-ack" type="button" class="primary">I understand</button>
+        </div>
+      </section>
+
       <section class="card" id="timer-card">
         <h2><span class="step">1</span> Dip &amp; time <small>optional</small></h2>
         <p class="hint" id="timing-text"></p>
@@ -98,6 +143,10 @@
     </main>
 
     <footer>
+      <p>
+        <b>For educational use only.</b> Results are photo-based estimates and may be inaccurate. Provided “as is”,
+        without warranty; use at your own risk. <a href="#disclaimer" id="footer-disclaimer-link">Full disclaimer</a>.
+      </p>
       <p>Photos are processed entirely on your device and never uploaded. History is stored in this browser only.</p>
       <p><a href="https://github.com/canvito/TestStripAnalyzer">Source &amp; docs</a></p>
     </footer>
