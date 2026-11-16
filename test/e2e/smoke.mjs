@@ -48,7 +48,7 @@ try {
   check(!(await page.isVisible('.disclaimer-summary')) && (await page.isVisible('.disclaimer-short')), 'acknowledged disclaimer collapses to a one-line reminder');
   await page.click('#footer-disclaimer-link');
   check(await page.$eval('#disclaimer-full', (d) => d.open), 'footer link opens the full disclaimer');
-  // A hostile history entry (other sites on the same github.io origin share localStorage) must render as text.
+  // A hostile history entry (defense in depth: never trust localStorage) must render as text.
   await page.evaluate(() => {
     const evil = '<img src=x onerror="window.__pwned=1">';
     localStorage.setItem('tsa.history.v1', JSON.stringify([{ id: '"x', date: 'bad', water: evil, readings: { ph: { value: 7, text: evil, decimals: 999 } } }, { id: 'broken' }]));

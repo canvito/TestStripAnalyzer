@@ -1,6 +1,5 @@
 // Reading history kept in localStorage, with CSV export.
-// Note: on GitHub Pages every site of the account shares one origin (here the custom domain), and therefore
-// one localStorage, so stored entries are treated as untrusted: validated on load and escaped on render.
+// Note: local storage can be written by anything on this origin (and was shared with other sites when the app lived under canvo.com/),`n// so stored entries are treated as untrusted: validated on load and escaped on render.
 import { formatReading } from '../core/format.js';
 import { assess, PROFILES } from '../core/targets.js';
 import { esc } from './html.js';

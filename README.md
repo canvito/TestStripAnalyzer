@@ -30,7 +30,7 @@ trustworthy each reading is.
 
 ## Quick start
 
-**On your phone:** open **<https://canvo.com/TestStripAnalyzer/>** → *Take photo* → tap the 4 corners of the color
+**On your phone:** open **<https://TestStripAnalyzer.canvo.com/>** → *Take photo* → tap the 4 corners of the color
 table → tap the tip pad and the last pad of the strip → read the results. Full walkthrough: [docs/user-guide.md](docs/user-guide.md).
 
 **On this PC (development):**
@@ -104,9 +104,9 @@ Node 20+ is required for the tools and tests. The app itself needs only a modern
 
 ## Deploying
 
-**Live app: <https://canvo.com/TestStripAnalyzer/>**. The account's GitHub Pages custom domain is `canvo.com`;
-`canvito.github.io/TestStripAnalyzer` redirects there. On iPhone, open it in Safari → Share → *Add to Home Screen* to use
-it like an app.
+**Live app: <https://TestStripAnalyzer.canvo.com/>**. It has its own subdomain (set in this repo's **Settings → Pages →
+Custom domain**). The old addresses `canvo.com/TestStripAnalyzer/` and `canvito.github.io/TestStripAnalyzer/` redirect
+there. On iPhone, open it in Safari → Share → *Add to Home Screen* to use it like an app.
 
 The site is plain static files. `.github/workflows/pages.yml` publishes `index.html`, `css/`, `js/`, `icon.svg` and
 `manifest.webmanifest` to **GitHub Pages** on every push to `main`, and `.github/workflows/ci.yml` runs `npm test`.
@@ -114,8 +114,11 @@ Pages is already enabled (repository **Settings → Pages → Source: GitHub Act
 live app within a minute or two. Check progress under the repository's **Actions** tab. To redeploy without a code
 change, run the *Deploy to GitHub Pages* workflow manually (*Run workflow*).
 
-Saved history lives in the browser's local storage for the `canvo.com` origin, which every Pages site on that domain
-shares. The app namespaces its keys (`tsa.*`) and treats stored data as untrusted.
+**Why a subdomain:** browsers separate saved data by origin (scheme + host), not by path. Under `canvo.com/…` this app
+would share local storage with the owner's journal at `canvo.com`. On its own subdomain it's a separate origin, so neither
+site can read the other's data. Keep it that way: don't move the app back under `canvo.com/` or remove the custom domain.
+Saved history lives in this origin's local storage. The app namespaces its keys (`tsa.*`) and treats stored data as
+untrusted. (History saved at the old `canvo.com/TestStripAnalyzer/` address didn't carry over to the new origin.)
 
 ### Hosting & architecture
 
@@ -126,20 +129,19 @@ The live app runs on **GitHub Pages only**. There is no backend, and **no Azure*
 | App code | This repo, `main` branch | Static HTML/CSS/JS only: no server code, database, API keys, analytics or third-party calls. |
 | Build & deploy | GitHub Actions (`.github/workflows/pages.yml`) | Copies the static files to GitHub Pages on every push to `main`. |
 | Hosting & CDN | GitHub Pages, served through GitHub's CDN (Fastly) | Responses carry `Server: GitHub.com` and `X-GitHub-Request-Id`. |
-| Domain | `canvo.com`, the custom domain of the user-site repo `canvito/canvito.github.io` (its Pages settings) | Project sites appear under it automatically, so this one is `canvo.com/TestStripAnalyzer/`. GitHub Pages issues the HTTPS certificate, and **Enforce HTTPS** is on for this repo, so `http://` redirects to `https://`. |
-| DNS | Google Cloud DNS (`ns-cloud-c1…c4.googledomains.com`) | `canvo.com` A records → `185.199.108–111.153` (GitHub Pages); `www.canvo.com` CNAME → `canvito.github.io`. |
+| Domain | `TestStripAnalyzer.canvo.com`, this repo's Pages custom domain | GitHub Pages issues the HTTPS certificate, and **Enforce HTTPS** is on, so `http://` redirects to `https://`. Hostnames aren't case-sensitive: GitHub stores it in lowercase, and the docs write it in CamelCase for readability. `canvo.com` is a verified domain in the GitHub account, so nobody else can claim its subdomains. A workflow-deployed site keeps its custom domain in the repo settings, not in a `CNAME` file. |
+| DNS | Squarespace Domains (Google Cloud DNS nameservers `ns-cloud-c1…c4.googledomains.com`) | `teststripanalyzer.canvo.com` CNAME → `canvito.github.io`. |
 | User data | The user's browser | Photos are analyzed on the device and never uploaded. History is in local storage. |
 
-Changing the custom domain of `canvito/canvito.github.io` or the `canvo.com` DNS records also changes this app's URL.
+Removing the `teststripanalyzer` CNAME record or this repo's custom domain would take the app offline at this address.
 
 To verify the hosting at any time:
 
 ```powershell
-Resolve-DnsName canvo.com -Type A                                                     # 185.199.108–111.153 = GitHub Pages
-(Invoke-WebRequest https://canvo.com/TestStripAnalyzer/ -Method Head).Headers.Server  # GitHub.com
-gh api repos/canvito/canvito.github.io/pages --jq .cname                              # canvo.com
+Resolve-DnsName TestStripAnalyzer.canvo.com -Type CNAME                               # canvito.github.io
+(Invoke-WebRequest https://TestStripAnalyzer.canvo.com/ -Method Head).Headers.Server  # GitHub.com
+gh api repos/canvito/TestStripAnalyzer/pages --jq '{cname, https_enforced}'            # teststripanalyzer.canvo.com, true
 ```
-
 ## Disclaimer
 
 For educational use only. Readings are computer-vision estimates whose accuracy depends on the photo, the strip and
