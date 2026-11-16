@@ -124,7 +124,7 @@ The live app runs on **GitHub Pages only**. There is no backend, and **no Azure*
 | App code | This repo, `main` branch | Static HTML/CSS/JS only: no server code, database, API keys, analytics or third-party calls. |
 | Build & deploy | GitHub Actions (`.github/workflows/pages.yml`) | Copies the static files to GitHub Pages on every push to `main`. |
 | Hosting & CDN | GitHub Pages, served through GitHub's CDN (Fastly) | Responses carry `Server: GitHub.com` and `X-GitHub-Request-Id`. |
-| Domain | `canvo.com`, the custom domain of the user-site repo `canvito/canvito.github.io` (its Pages settings) | Project sites appear under it automatically, so this one is `canvo.com/TestStripAnalyzer/`. GitHub Pages issues the HTTPS certificate. |
+| Domain | `canvo.com`, the custom domain of the user-site repo `canvito/canvito.github.io` (its Pages settings) | Project sites appear under it automatically, so this one is `canvo.com/TestStripAnalyzer/`. GitHub Pages issues the HTTPS certificate, and **Enforce HTTPS** is on for this repo, so `http://` redirects to `https://`. |
 | DNS | Google Cloud DNS (`ns-cloud-c1…c4.googledomains.com`) | `canvo.com` A records → `185.199.108–111.153` (GitHub Pages); `www.canvo.com` CNAME → `canvito.github.io`. |
 | User data | The user's browser | Photos are analyzed on the device and never uploaded. History is in local storage. |
 
