@@ -115,6 +115,29 @@ change, run the *Deploy to GitHub Pages* workflow manually (*Run workflow*).
 Saved history lives in the browser's local storage for the `canvo.com` origin, which every Pages site on that domain
 shares. The app namespaces its keys (`tsa.*`) and treats stored data as untrusted.
 
+### Hosting & architecture
+
+The live app runs on **GitHub Pages only**. There is no backend, and **no Azure** or other cloud service is involved.
+
+| Piece | Where | Notes |
+| --- | --- | --- |
+| App code | This repo, `main` branch | Static HTML/CSS/JS only: no server code, database, API keys, analytics or third-party calls. |
+| Build & deploy | GitHub Actions (`.github/workflows/pages.yml`) | Copies the static files to GitHub Pages on every push to `main`. |
+| Hosting & CDN | GitHub Pages, served through GitHub's CDN (Fastly) | Responses carry `Server: GitHub.com` and `X-GitHub-Request-Id`. |
+| Domain | `canvo.com`, the custom domain of the user-site repo `canvito/canvito.github.io` (its Pages settings) | Project sites appear under it automatically, so this one is `canvo.com/TestStripAnalyzer/`. GitHub Pages issues the HTTPS certificate. |
+| DNS | Google Cloud DNS (`ns-cloud-c1…c4.googledomains.com`) | `canvo.com` A records → `185.199.108–111.153` (GitHub Pages); `www.canvo.com` CNAME → `canvito.github.io`. |
+| User data | The user's browser | Photos are analyzed on the device and never uploaded. History is in local storage. |
+
+Changing the custom domain of `canvito/canvito.github.io` or the `canvo.com` DNS records also changes this app's URL.
+
+To verify the hosting at any time:
+
+```powershell
+Resolve-DnsName canvo.com -Type A                                                     # 185.199.108–111.153 = GitHub Pages
+(Invoke-WebRequest https://canvo.com/TestStripAnalyzer/ -Method Head).Headers.Server  # GitHub.com
+gh api repos/canvito/canvito.github.io/pages --jq .cname                              # canvo.com
+```
+
 ## License
 
 MIT, see [LICENSE](LICENSE). Kit charts are measured from the manufacturer's printed card for interoperability. Brand
