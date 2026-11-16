@@ -13,14 +13,15 @@ values beyond the chart (≈, extrapolated), the status is based on that estimat
 
 The top of the results has:
 
-- An overview table with the columns **Test | Reading | Status | Potential impact**. Tests with two or more photos
-  also show *Source* and *Timing*.
+- An overview table with the columns **Test | Reading | Status | Potential impact | Suggested mitigation**. The
+  mitigation is a one-line fix, prefixed *Act now:* for Very low/high readings. Tests with two or more photos also show
+  *Source* and *Timing*. On phones, each row stacks into a labelled block.
 - A verdict box listing everything flagged, plus **cross-checks**:
   - High pH together with high KH: pH is held up by the buffer, so lower KH first.
   - Low pH together with low KH: raise KH first.
   - Nitrite at pH ≥ 8: test ammonia, which is far more toxic at high pH.
 
-Each reading's card repeats the potential impact above its *What to do* list.
+Each reading's card repeats the potential impact above its full step-by-step *What to do* list.
 
 ## Profiles
 
@@ -69,6 +70,9 @@ Shown for every reading outside its target. The *Very* wording is used when the 
 
 ## Corrective actions (summary)
 
+The overview table's *Suggested mitigation* column shows a one-line version of these, and each reading's card shows the
+full steps.
+
 The full wording lives in [`js/core/targets.js`](../js/core/targets.js). Freshwater and saltwater have separate advice.
 
 | Reading | Freshwater | Saltwater |
@@ -88,6 +92,7 @@ The full wording lives in [`js/core/targets.js`](../js/core/targets.js). Freshwa
 Edit `PROFILES` in [`js/core/targets.js`](../js/core/targets.js). Each profile has `id`, `water` (`fresh`/`salt`),
 `name`, `description`, optional `notes`, and `ranges` per parameter id (`ph`, `no2`, `no3`, `kh`, `gh`) with any of
 `min`, `max`, `dangerBelow`, `dangerAbove`. Write KH/GH with `dh(°dH)` so they're stored in ppm. Actions live in
-`ACTIONS[water][param][low|high]`, impacts in `IMPACTS[water][param][low|high][caution|danger]`, cross-checks in
-`INSIGHTS`. `npm test` verifies that every out-of-range direction of every profile has actions and an impact. Update
-the tables above when you change a profile.
+`ACTIONS[water][param][low|high]` (full steps), one-line table text in `MITIGATION[water][param][low|high]`, impacts
+in `IMPACTS[water][param][low|high][caution|danger]`, and cross-checks in `INSIGHTS`. `npm test` verifies that every
+out-of-range direction of every profile has actions, an impact and a mitigation. Update the tables above when you
+change a profile.

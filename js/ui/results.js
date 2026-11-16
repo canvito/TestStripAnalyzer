@@ -141,21 +141,24 @@ export function combine(photos, kit) {
  */
 export function renderOverview(el, combined, assessment, photoCount) {
   const multi = photoCount > 1;
+  const dash = '<span class="muted">—</span>';
   const rows = combined
     .map((c) => {
       const s = assessment?.statuses[c.p.id];
-      const impact = s && s.level !== 'normal' ? esc(s.impact) : '<span class="muted">—</span>';
+      const off = s && s.level !== 'normal';
       const source = multi
-        ? `<td class="nowrap">photo ${c.idx + 1}${c.photo.elapsed != null ? ` · ${formatElapsed(c.photo.elapsed)}` : ''}</td>
-           <td>${c.status ? `<span class="tag ${c.status}">${c.status}</span>` : ''}</td>`
+        ? `<td class="nowrap" data-label="Source">photo ${c.idx + 1}${c.photo.elapsed != null ? ` · ${formatElapsed(c.photo.elapsed)}` : ''}</td>
+           <td data-label="Timing">${c.status ? `<span class="tag ${c.status}">${c.status}</span>` : ''}</td>`
         : '';
-      return `<tr data-param="${esc(c.p.id)}"><th scope="row">${esc(c.p.symbol)}</th><td class="nowrap">${esc(readingParts(c.p).main)}</td>
-        <td>${statusBadge(s)}</td><td class="impact-cell">${impact}</td>${source}</tr>`;
+      return `<tr data-param="${esc(c.p.id)}"><th scope="row">${esc(c.p.symbol)}</th><td class="nowrap reading-cell">${esc(readingParts(c.p).main)}</td>
+        <td class="status-cell">${statusBadge(s)}</td>
+        <td class="impact-cell${off ? '' : ' empty'}" data-label="Potential impact">${off ? esc(s.impact) : dash}</td>
+        <td class="mitigation-cell${off ? '' : ' empty'}" data-label="Suggested mitigation">${off ? esc(s.mitigation) : dash}</td>${source}</tr>`;
     })
     .join('');
   el.innerHTML = `<div class="overview">${multi ? `<h3>Combined reading (${photoCount} photos, best-timed photo per parameter)</h3>` : ''}
-    <div class="table-scroll"><table><thead><tr><th>Test</th><th>Reading</th><th>Status</th><th>Potential impact</th>${
+    <div class="table-scroll"><table><thead><tr><th>Test</th><th>Reading</th><th>Status</th><th>Potential impact</th><th>Suggested mitigation</th>${
       multi ? '<th>Source</th><th>Timing</th>' : ''
     }</tr></thead><tbody>${rows}</tbody></table></div>
-    ${multi ? '<p class="hint">Details below are for the latest photo.</p>' : ''}</div>`;
+    <p class="hint">${multi ? 'Details below are for the latest photo. ' : ''}Step-by-step instructions are under each reading below.</p></div>`;
 }

@@ -45,7 +45,7 @@ test('planted tanks flag nitrate that is too low for plants', () => {
   assert.match(s.actions[0], /fertilizer/);
 });
 
-test('every out-of-range direction of every profile has corrective actions and a potential impact', () => {
+test('every out-of-range direction of every profile has actions, an impact and a mitigation', () => {
   for (const profile of PROFILES) {
     for (const [id, r] of Object.entries(profile.ranges)) {
       const probes = [];
@@ -56,6 +56,7 @@ test('every out-of-range direction of every profile has corrective actions and a
         assert.notEqual(s.level, 'normal', `${profile.id} ${id} ${what} (${v})`);
         assert.ok(s.actions.length, `${profile.id} ${id} ${what} actions`);
         assert.ok(s.impact.length > 20, `${profile.id} ${id} ${what} impact`);
+        assert.ok(s.mitigation.length > 20, `${profile.id} ${id} ${what} mitigation`);
       }
     }
   }
@@ -67,6 +68,8 @@ test('the impact text escalates from High to Very high', () => {
   assert.notEqual(high.impact, veryHigh.impact);
   assert.match(veryHigh.impact, /die/);
   assert.equal(evaluate('no2', 0, community, 1).impact, '');
+  assert.match(veryHigh.mitigation, /^Act now: /);
+  assert.doesNotMatch(high.mitigation, /^Act now/);
 });
 
 test('saltwater profiles have no GH target and fall back to the first profile of the water type', () => {

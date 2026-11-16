@@ -66,7 +66,8 @@ Each parameter shows:
 
   It is followed by the target range. When the reading is outside the target, the card shows its **Potential impact**
   and a **What to do** list that explains how to correct it safely and gradually. The top of the results has an
-  overview table (**Test | Reading | Status | Potential impact**) and a box summarizing all flagged readings with
+  overview table (**Test | Reading | Status | Potential impact | Suggested mitigation**; stacked per reading on
+  phones) and a box summarizing all flagged readings with
   cross-checks, e.g. "pH is high *because* KH is high — lower KH first". Ranges and sources: [targets](targets.md).
 - **Big number.** The estimated value, interpolated between chart colors, e.g. `7.3`. KH/GH also show °dKH/°dGH.
   There is always a number:

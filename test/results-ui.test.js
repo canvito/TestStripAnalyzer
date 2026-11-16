@@ -39,15 +39,15 @@ test('a result card shows the estimate, its status, potential impact and what to
   assert.match(el.innerHTML, /<details class="actions s-danger" open><summary>What to do<\/summary><ul><li>/);
 });
 
-test('the overview table has a potential-impact column, empty for normal readings', () => {
+test('the overview table has impact and mitigation columns, empty for normal readings', () => {
   const profile = getProfile('fw-community', 'fresh');
   const no3 = { ...phParam, id: 'no3', name: 'Nitrate', symbol: 'NO₃⁻', unit: 'ppm', decimals: 0, match: { ...phParam.match, value: 10, outOfRange: null } };
   const combined = [{ p: phParam }, { p: no3 }];
   const el = { innerHTML: '' };
   renderOverview(el, combined, assess([phParam, no3], profile), 1);
-  assert.match(el.innerHTML, /<th>Test<\/th><th>Reading<\/th><th>Status<\/th><th>Potential impact<\/th><\/tr>/);
-  assert.match(el.innerHTML, /data-param="ph">[\s\S]*?Very high[\s\S]*?Gill, skin and eye damage/);
-  assert.match(el.innerHTML, /data-param="no3">[\s\S]*?Normal[\s\S]*?class="muted">—/);
+  assert.match(el.innerHTML, /<th>Test<\/th><th>Reading<\/th><th>Status<\/th><th>Potential impact<\/th><th>Suggested mitigation<\/th><\/tr>/);
+  assert.match(el.innerHTML, /data-param="ph">[\s\S]*?Very high[\s\S]*?Gill, skin and eye damage[\s\S]*?Act now: Lower slowly/);
+  assert.match(el.innerHTML, /data-param="no3">[\s\S]*?Normal[\s\S]*?class="impact-cell empty"[^>]*><span class="muted">—[\s\S]*?class="mitigation-cell empty"[^>]*><span class="muted">—/);
   assert.doesNotMatch(el.innerHTML, /<th>Source<\/th>/);
 });
 

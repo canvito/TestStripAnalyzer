@@ -8,7 +8,7 @@ trustworthy each reading is.
 - Runs entirely **in the browser** (phone or PC). Photos never leave your device.
 - Currently supports **API 5 in 1 Test Strips** (pH, NO₂⁻, NO₃⁻, KH, GH; freshwater & saltwater pH rows).
 - Rates every reading **Normal / Low / High** (or *Very* low/high) for your tank type. When a value is off target it
-  shows the **potential impact** and **what to do**.
+  shows the **potential impact** and a **suggested mitigation**, with step-by-step instructions.
 - No install and no build step: a static site you can host on GitHub Pages.
 
 > 📖 **Using the app?** Read the [User guide](docs/user-guide.md).

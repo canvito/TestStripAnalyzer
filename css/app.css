@@ -548,9 +548,57 @@ th {
   vertical-align: top;
 }
 
-.impact-cell {
+.impact-cell,
+.mitigation-cell {
   min-width: 150px;
   line-height: 1.3;
+}
+
+/* Phones: stack each overview row into a labelled block instead of a 5+ column table. */
+@media (max-width: 640px) {
+  .overview thead {
+    display: none;
+  }
+
+  .overview table,
+  .overview tbody,
+  .overview tr {
+    display: block;
+  }
+
+  .overview tr {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .overview tr:last-child {
+    border-bottom: 0;
+  }
+
+  .overview th[scope='row'],
+  .overview .reading-cell,
+  .overview .status-cell {
+    display: inline-block;
+    border: 0;
+    padding: 2px 8px 2px 0;
+  }
+
+  .overview td[data-label] {
+    display: block;
+    border: 0;
+    padding: 4px 0 0;
+    min-width: 0;
+  }
+
+  .overview td[data-label]::before {
+    content: attr(data-label) ': ';
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .overview td.empty {
+    display: none;
+  }
 }
 
 .nowrap {

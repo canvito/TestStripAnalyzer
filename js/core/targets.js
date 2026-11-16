@@ -273,6 +273,41 @@ const IMPACTS = {
   },
 };
 
+/** One-line mitigation for the overview table: MITIGATION[water][param][low|high]. Full steps are in ACTIONS. */
+const MITIGATION = {
+  fresh: {
+    ph: {
+      high: 'Lower slowly (≤ 0.3/day): mix RO/distilled/rain water into water changes and remove calcareous rock; no pH-down chemicals while KH is high.',
+      low: 'Water change and cleanup; raise KH first, then pH by ≤ 0.3/day with crushed coral or a buffer.',
+    },
+    no2: { high: '25–50 % water change daily until 0, feed less, protect the biofilter (bacteria product); test ammonia.' },
+    no3: {
+      high: '25–50 % water changes (several smaller ones if very high), feed less, check tap-water nitrate, add plants.',
+      low: 'Dose a nitrogen fertilizer and re-test.',
+    },
+    kh: {
+      high: 'Mix RO/distilled/rain water into water changes; remove calcareous decor and substrate.',
+      low: 'Raise ~1 °dKH/day with crushed coral, a KH buffer or baking soda.',
+    },
+    gh: {
+      high: 'Mix RO/distilled/rain water into water changes; remove calcareous rock.',
+      low: 'Add a GH booster / remineralizer gradually; always remineralize RO water.',
+    },
+  },
+  salt: {
+    ph: {
+      high: 'Reduce alkalinity/kalkwasser dosing and do a water change.',
+      low: 'Improve gas exchange and room ventilation; bring alkalinity into range.',
+    },
+    no2: { high: 'Water change, feed less, add nitrifying bacteria, no new livestock; test ammonia.' },
+    no3: { high: 'RO/DI water changes, feed less, clean filter socks; skimmer, refugium or denitrification.' },
+    kh: {
+      high: 'Stop or reduce alkalinity dosing and let it drift down slowly.',
+      low: 'Dose alkalinity by ≤ 1 °dKH/day; check calcium and magnesium.',
+    },
+  },
+};
+
 /** Cross-parameter hints, given statuses and values keyed by parameter id. */
 const INSIGHTS = [
   {
@@ -303,7 +338,7 @@ const cap = (s) => s[0].toUpperCase() + s.slice(1);
 /**
  * Status of a value against a profile's range. The value is first rounded to the displayed precision,
  * so the label always agrees with the number shown.
- * @returns {null | { level: 'low'|'normal'|'high', severity: 'ok'|'caution'|'danger', label: string, range: object, actions: string[], impact: string }}
+ * @returns {null | { level: 'low'|'normal'|'high', severity: 'ok'|'caution'|'danger', label: string, range: object, actions: string[], impact: string, mitigation: string }}
  */
 export function evaluate(paramId, value, profile, decimals = 1) {
   const range = profile.ranges[paramId];
@@ -322,7 +357,9 @@ export function evaluate(paramId, value, profile, decimals = 1) {
   const actions = level === 'normal' ? [] : (ACTIONS[profile.water]?.[paramId]?.[level] ?? []);
   const impacts = level === 'normal' ? null : IMPACTS[profile.water]?.[paramId]?.[level];
   const impact = impacts ? (impacts[severity] ?? impacts.caution) : '';
-  return { level, severity, label, range, actions, impact };
+  const summary = level === 'normal' ? '' : (MITIGATION[profile.water]?.[paramId]?.[level] ?? '');
+  const mitigation = summary && severity === 'danger' ? `Act now: ${summary}` : summary;
+  return { level, severity, label, range, actions, impact, mitigation };
 }
 
 /** Human-readable target, e.g. "6.5–7.8", "≤ 40 ppm", "54–143 ppm (3–8 °dKH)". */

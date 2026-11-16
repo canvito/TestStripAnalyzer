@@ -99,8 +99,10 @@ try {
   check((await page.textContent('[data-param="gh"] .status')).includes('Low') && (await page.$$('[data-param="gh"] .actions li')).length > 0, 'low GH shows corrective actions');
   check(/1 reading outside the Community tropical targets/.test(await page.textContent('#assessment')), 'verdict box summarizes flagged readings');
   check(
-    (await page.textContent('#overview thead')).includes('Potential impact') && /calcium/.test(await page.textContent('#overview tr[data-param="gh"] .impact-cell')),
-    'overview table shows the potential impact of the low GH',
+    (await page.textContent('#overview thead')).includes('Potential impact') &&
+      /calcium/.test(await page.textContent('#overview tr[data-param="gh"] .impact-cell')) &&
+      /GH booster/.test(await page.textContent('#overview tr[data-param="gh"] .mitigation-cell')),
+    'overview table shows the potential impact and suggested mitigation of the low GH',
   );
   await page.selectOption('#tank-select', 'fw-rift-cichlid');
   check((await page.textContent('[data-param="ph"] .status')).includes('Low'), 'the same pH is Low for Rift Lake cichlids');
