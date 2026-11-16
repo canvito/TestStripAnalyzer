@@ -45,13 +45,28 @@ test('planted tanks flag nitrate that is too low for plants', () => {
   assert.match(s.actions[0], /fertilizer/);
 });
 
-test('every out-of-range direction of every profile has corrective actions', () => {
+test('every out-of-range direction of every profile has corrective actions and a potential impact', () => {
   for (const profile of PROFILES) {
     for (const [id, r] of Object.entries(profile.ranges)) {
-      if (r.min != null) assert.ok(evaluate(id, r.min - 1, profile, 2).actions.length, `${profile.id} ${id} low`);
-      if (r.max != null) assert.ok(evaluate(id, r.max + 1, profile, 2).actions.length, `${profile.id} ${id} high`);
+      const probes = [];
+      if (r.min != null) probes.push(['low', r.min - 0.02], ['very low', (r.dangerBelow ?? r.min) - 1]);
+      if (r.max != null) probes.push(['high', r.max + 0.02], ['very high', (r.dangerAbove ?? r.max) + 1]);
+      for (const [what, v] of probes) {
+        const s = evaluate(id, v, profile, 2);
+        assert.notEqual(s.level, 'normal', `${profile.id} ${id} ${what} (${v})`);
+        assert.ok(s.actions.length, `${profile.id} ${id} ${what} actions`);
+        assert.ok(s.impact.length > 20, `${profile.id} ${id} ${what} impact`);
+      }
     }
   }
+});
+
+test('the impact text escalates from High to Very high', () => {
+  const high = evaluate('no2', 0.3, community, 1);
+  const veryHigh = evaluate('no2', 0.6, community, 1);
+  assert.notEqual(high.impact, veryHigh.impact);
+  assert.match(veryHigh.impact, /die/);
+  assert.equal(evaluate('no2', 0, community, 1).impact, '');
 });
 
 test('saltwater profiles have no GH target and fall back to the first profile of the water type', () => {

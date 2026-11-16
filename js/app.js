@@ -3,7 +3,7 @@ import { KITS, getKit } from './kits/index.js';
 import { analyze } from './core/analyze.js';
 import { PhotoEditor } from './ui/editor.js';
 import { loadImageFile } from './ui/image-load.js';
-import { renderResults, renderWarnings, renderSummary, renderAssessment, combine, formatElapsed } from './ui/results.js';
+import { renderResults, renderWarnings, renderOverview, renderAssessment, combine, formatElapsed } from './ui/results.js';
 import { loadHistory, addEntry, deleteEntry, clearHistory, makeEntry, toCsv, renderHistory } from './ui/history.js';
 import { DipTimer } from './ui/timer.js';
 import { profilesFor, getProfile, assess } from './core/targets.js';
@@ -197,7 +197,7 @@ function renderAll() {
     profile(),
   );
   renderAssessment($('assessment'), overall, Object.fromEntries(kit.params.map((p) => [p.id, p])));
-  renderSummary($('summary'), combined, analyzed.length, overall);
+  renderOverview($('overview'), combined, overall, analyzed.length);
   if (current?.result) {
     renderWarnings($('warnings'), current.result.warnings);
     renderResults($('results'), current.result, current.elapsed, assess(current.result.params, profile()));

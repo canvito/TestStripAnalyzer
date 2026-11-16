@@ -1,6 +1,6 @@
 // Rendering of readings, warnings and the multi-photo summary.
 import { cssColor } from '../core/color.js';
-import { formatReading, readingParts } from '../core/format.js';
+import { readingParts } from '../core/format.js';
 import { formatTarget } from '../core/targets.js';
 import { esc } from './html.js';
 
@@ -48,10 +48,11 @@ export function statusBadge(s) {
 function statusBlock(p, s, profile) {
   if (!s) return '';
   const target = `<span class="target">Target ${esc(formatTarget(s.range, p))} · ${esc(profile.name)}</span>`;
+  const impact = s.impact ? `<p class="impact s-${s.severity}"><b>Potential impact:</b> ${esc(s.impact)}</p>` : '';
   const actions = s.actions.length
     ? `<details class="actions s-${s.severity}" open><summary>What to do</summary><ul>${s.actions.map((a) => `<li>${esc(a)}</li>`).join('')}</ul></details>`
     : '';
-  return `<div class="status-row">${statusBadge(s)}${target}</div>${actions}`;
+  return `<div class="status-row">${statusBadge(s)}${target}</div>${impact}${actions}`;
 }
 
 /** Overall verdict box: counts per severity, cross-parameter insights and profile notes. */
@@ -134,19 +135,27 @@ export function combine(photos, kit) {
   return out;
 }
 
-export function renderSummary(el, combined, photoCount, assessment) {
-  if (photoCount < 2) {
-    el.innerHTML = '';
-    return;
-  }
+/**
+ * Overview table of the (combined) readings with status and potential impact.
+ * Tests with several photos also show which photo each reading came from and its timing.
+ */
+export function renderOverview(el, combined, assessment, photoCount) {
+  const multi = photoCount > 1;
   const rows = combined
-    .map(
-      (c) => `<tr><td>${esc(c.p.symbol)}</td><td>${esc(formatReading(c.p))}</td><td>${statusBadge(assessment?.statuses[c.p.id])}</td>
-        <td>photo ${c.idx + 1}${c.photo.elapsed != null ? ` · ${formatElapsed(c.photo.elapsed)}` : ''}</td>
-        <td>${c.status ? `<span class="tag ${c.status}">${c.status}</span>` : ''}</td></tr>`,
-    )
+    .map((c) => {
+      const s = assessment?.statuses[c.p.id];
+      const impact = s && s.level !== 'normal' ? esc(s.impact) : '<span class="muted">—</span>';
+      const source = multi
+        ? `<td class="nowrap">photo ${c.idx + 1}${c.photo.elapsed != null ? ` · ${formatElapsed(c.photo.elapsed)}` : ''}</td>
+           <td>${c.status ? `<span class="tag ${c.status}">${c.status}</span>` : ''}</td>`
+        : '';
+      return `<tr data-param="${esc(c.p.id)}"><th scope="row">${esc(c.p.symbol)}</th><td class="nowrap">${esc(readingParts(c.p).main)}</td>
+        <td>${statusBadge(s)}</td><td class="impact-cell">${impact}</td>${source}</tr>`;
+    })
     .join('');
-  el.innerHTML = `<div class="summary"><h3>Combined reading (${photoCount} photos, best-timed photo per parameter)</h3>
-    <div class="table-scroll"><table><thead><tr><th>Test</th><th>Reading</th><th>Status</th><th>Source</th><th>Timing</th></tr></thead><tbody>${rows}</tbody></table></div>
-    <p class="hint">Details below are for the latest photo.</p></div>`;
+  el.innerHTML = `<div class="overview">${multi ? `<h3>Combined reading (${photoCount} photos, best-timed photo per parameter)</h3>` : ''}
+    <div class="table-scroll"><table><thead><tr><th>Test</th><th>Reading</th><th>Status</th><th>Potential impact</th>${
+      multi ? '<th>Source</th><th>Timing</th>' : ''
+    }</tr></thead><tbody>${rows}</tbody></table></div>
+    ${multi ? '<p class="hint">Details below are for the latest photo.</p>' : ''}</div>`;
 }

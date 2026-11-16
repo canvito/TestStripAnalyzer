@@ -188,6 +188,91 @@ const ACTIONS = {
   },
 };
 
+/** Potential impact of an off-target reading: IMPACTS[water][param][low|high][caution|danger]. */
+const IMPACTS = {
+  fresh: {
+    ph: {
+      high: {
+        caution: 'Stress for soft-water species; ammonia becomes more toxic as pH rises.',
+        danger: 'Gill, skin and eye damage; any ammonia becomes highly toxic. Can be fatal, especially after a sudden swing.',
+      },
+      low: {
+        caution: 'Stress and weaker immunity; the biofilter slows below ~6.5, so ammonia and nitrite can build up.',
+        danger: 'Acid stress damages gills and skin; the biofilter largely stops below ~6, risking a crash and deaths.',
+      },
+    },
+    no2: {
+      high: {
+        caution: 'Nitrite binds to hemoglobin (“brown blood”), cutting oxygen transport: gasping, lethargy, weaker immunity.',
+        danger: 'Severe oxygen starvation — fish gasp at the surface and can die within hours to days.',
+      },
+    },
+    no3: {
+      high: {
+        caution: 'Chronic stress, lower immunity, duller color and slower growth; feeds algae.',
+        danger: 'Sensitive fish and shrimp become lethargic, stop eating or die; heavy algae growth.',
+      },
+      low: {
+        caution: 'Plants starve of nitrogen: yellowing older leaves and stunted growth, letting algae win.',
+      },
+    },
+    kh: {
+      high: {
+        caution: 'Keeps pH high and hard to lower; soft-water species may be stressed and breed poorly.',
+        danger: 'Soft-water species struggle: chronic stress, failed breeding, shrimp molting problems.',
+      },
+      low: {
+        caution: 'Little buffering: pH can drop suddenly (pH crash), stressing fish.',
+        danger: 'High risk of a pH crash that stalls the biofilter and can kill fish overnight.',
+      },
+    },
+    gh: {
+      high: {
+        caution: 'Soft-water species may suffer osmotic stress and failed breeding; harmless to hard-water fish.',
+        danger: 'Long-term stress, shorter lifespan and failed breeding for soft-water species; shrimp molting problems.',
+      },
+      low: {
+        caution: 'Too little calcium/magnesium: shrimp and snails struggle to molt and grow shells; plants show deficiencies.',
+        danger: 'Failed molts and shrimp deaths, eroding snail shells, stressed fish.',
+      },
+    },
+  },
+  salt: {
+    ph: {
+      high: {
+        caution: 'Usually tied to heavy alkalinity dosing; risk of calcium carbonate precipitation.',
+        danger: 'Stress for fish and invertebrates, precipitation that strips calcium and alkalinity, more toxic ammonia.',
+      },
+      low: {
+        caution: 'Slower coral growth and calcification; long-term stress for fish.',
+        danger: 'Corals and invertebrates struggle to build skeletons and may bleach or recede; fish become stressed.',
+      },
+    },
+    no2: {
+      high: {
+        caution: 'Signals a new or disturbed biofilter; invertebrates may be stressed.',
+        danger: 'Biofilter failure is likely, with ammonia present too; invertebrates and corals at risk.',
+      },
+    },
+    no3: {
+      high: {
+        caution: 'Feeds nuisance algae and cyanobacteria; corals may brown and grow slower.',
+        danger: 'Coral decline and tissue loss, heavy algae; chronic stress for fish.',
+      },
+    },
+    kh: {
+      high: {
+        caution: 'Can burn coral tips (especially SPS) and cause precipitation.',
+        danger: 'Coral tissue loss and precipitation that crashes calcium; swings are especially harmful.',
+      },
+      low: {
+        caution: 'Slower coral growth; pH becomes less stable.',
+        danger: 'Coral tissue loss and pH crashes, especially for stony corals.',
+      },
+    },
+  },
+};
+
 /** Cross-parameter hints, given statuses and values keyed by parameter id. */
 const INSIGHTS = [
   {
@@ -218,7 +303,7 @@ const cap = (s) => s[0].toUpperCase() + s.slice(1);
 /**
  * Status of a value against a profile's range. The value is first rounded to the displayed precision,
  * so the label always agrees with the number shown.
- * @returns {null | { level: 'low'|'normal'|'high', severity: 'ok'|'caution'|'danger', label: string, range: object, actions: string[] }}
+ * @returns {null | { level: 'low'|'normal'|'high', severity: 'ok'|'caution'|'danger', label: string, range: object, actions: string[], impact: string }}
  */
 export function evaluate(paramId, value, profile, decimals = 1) {
   const range = profile.ranges[paramId];
@@ -235,7 +320,9 @@ export function evaluate(paramId, value, profile, decimals = 1) {
   }
   const label = level === 'normal' ? 'Normal' : severity === 'danger' ? `Very ${level}` : cap(level);
   const actions = level === 'normal' ? [] : (ACTIONS[profile.water]?.[paramId]?.[level] ?? []);
-  return { level, severity, label, range, actions };
+  const impacts = level === 'normal' ? null : IMPACTS[profile.water]?.[paramId]?.[level];
+  const impact = impacts ? (impacts[severity] ?? impacts.caution) : '';
+  return { level, severity, label, range, actions, impact };
 }
 
 /** Human-readable target, e.g. "6.5–7.8", "≤ 40 ppm", "54–143 ppm (3–8 °dKH)". */

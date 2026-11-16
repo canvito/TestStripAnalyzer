@@ -9,12 +9,18 @@ Each reading gets a **status** for the **Tank** type chosen at the top of the ap
 | ⛔ **Very low** / **Very high** | Far enough out to stress or harm livestock. Act now. |
 
 The status uses the estimated value rounded as displayed, so the label always agrees with the number on screen. For
-values beyond the chart (≈, extrapolated), the status is based on that estimate. A verdict box at the top of the
-results lists everything flagged, plus **cross-checks**:
+values beyond the chart (≈, extrapolated), the status is based on that estimate.
 
-- High pH together with high KH: pH is held up by the buffer, so lower KH first.
-- Low pH together with low KH: raise KH first.
-- Nitrite at pH ≥ 8: test ammonia, which is far more toxic at high pH.
+The top of the results has:
+
+- An overview table with the columns **Test | Reading | Status | Potential impact**. Tests with two or more photos
+  also show *Source* and *Timing*.
+- A verdict box listing everything flagged, plus **cross-checks**:
+  - High pH together with high KH: pH is held up by the buffer, so lower KH first.
+  - Low pH together with low KH: raise KH first.
+  - Nitrite at pH ≥ 8: test ammonia, which is far more toxic at high pH.
+
+Each reading's card repeats the potential impact above its *What to do* list.
 
 ## Profiles
 
@@ -45,6 +51,22 @@ Sources: [LiveAquaria – proper water parameters](https://www.liveaquaria.com/b
 The "very" thresholds and the actions are conservative general guidance distilled from these. They are not
 species-specific veterinary advice.
 
+## Potential impact
+
+Shown for every reading outside its target. The *Very* wording is used when the value is past the danger threshold.
+
+| Reading | Freshwater — High/Low → Very | Saltwater — High/Low → Very |
+| --- | --- | --- |
+| pH high | Stress for soft-water species; ammonia more toxic → gill, skin and eye damage, ammonia highly toxic, can be fatal after a sudden swing. | Tied to heavy alkalinity dosing, precipitation risk → stress, precipitation strips Ca/alkalinity, more toxic ammonia. |
+| pH low | Stress, weaker immunity, biofilter slows below ~6.5 → acid damage to gills and skin, biofilter largely stops below ~6, crash risk. | Slower coral calcification → corals may bleach or recede, fish stressed. |
+| Nitrite high | "Brown blood": less oxygen transport, gasping, lethargy → severe oxygen starvation, deaths within hours to days. | Disturbed biofilter, invertebrates stressed → biofilter failure likely, ammonia present, invertebrates and corals at risk. |
+| Nitrate high | Chronic stress, lower immunity, algae → sensitive fish and shrimp lethargic or dying, heavy algae. | Nuisance algae, coral browning → coral tissue loss, heavy algae, chronic fish stress. |
+| Nitrate low (planted) | Plants starve of nitrogen; algae win. | — |
+| KH high | pH stuck high; soft-water species stressed → failed breeding, shrimp molting problems. | Burnt coral tips, precipitation → coral tissue loss, calcium crash. |
+| KH low | pH can crash suddenly → pH crash can stall the biofilter and kill fish overnight. | Slower coral growth, unstable pH → coral tissue loss, pH crashes. |
+| GH high | Osmotic stress and failed breeding for soft-water species → shorter lifespan, molting problems. | — |
+| GH low | Shrimp and snails can't molt or build shells; plant deficiencies → failed molts, shrimp deaths, eroding shells. | — |
+
 ## Corrective actions (summary)
 
 The full wording lives in [`js/core/targets.js`](../js/core/targets.js). Freshwater and saltwater have separate advice.
@@ -66,5 +88,6 @@ The full wording lives in [`js/core/targets.js`](../js/core/targets.js). Freshwa
 Edit `PROFILES` in [`js/core/targets.js`](../js/core/targets.js). Each profile has `id`, `water` (`fresh`/`salt`),
 `name`, `description`, optional `notes`, and `ranges` per parameter id (`ph`, `no2`, `no3`, `kh`, `gh`) with any of
 `min`, `max`, `dangerBelow`, `dangerAbove`. Write KH/GH with `dh(°dH)` so they're stored in ppm. Actions live in
-`ACTIONS[water][param][low|high]`, cross-checks in `INSIGHTS`. `npm test` verifies that every out-of-range direction
-of every profile has actions. Update the table above when you change a profile.
+`ACTIONS[water][param][low|high]`, impacts in `IMPACTS[water][param][low|high][caution|danger]`, cross-checks in
+`INSIGHTS`. `npm test` verifies that every out-of-range direction of every profile has actions and an impact. Update
+the tables above when you change a profile.
